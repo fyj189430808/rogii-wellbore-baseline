@@ -1,0 +1,44 @@
+{
+  "config_version": "spatial_pad_1000_v1",
+  "status": "frozen",
+  "n_splits": 5,
+  "validation_unit": "complete_well",
+  "evaluation_mask": "TVT_input_isna",
+  "representative_coordinate": "median_xy_over_full_well",
+  "pad_algorithm": "connected_components_single_linkage",
+  "connection_radius_xy_units": 1000.0,
+  "coordinate_unit_note": "项目暂按 ft 解释原始 X/Y；若官方字段审计推翻该单位，必须建立新版本而不能静默覆盖 v1",
+  "pad_id_rule": "lexicographically_smallest_well_id",
+  "pad_sort_rule": [
+    "hidden_rows_desc",
+    "well_count_desc",
+    "pad_id_asc"
+  ],
+  "fold_assignment_rule": "assign_to_lexicographically_smallest_current_hidden_rows_well_count_pad_count_fold_id",
+  "random_seed": null,
+  "registry_path": "artifacts/folds/spatial_pad_1000_v1.csv",
+  "metadata_path": "artifacts/folds/spatial_pad_1000_v1.meta.json",
+  "expected_wells": 773,
+  "expected_hidden_rows": 3783989,
+  "expected_pads": 290,
+  "expected_fold_hidden_rows": {
+    "0": 757050,
+    "1": 756990,
+    "2": 756649,
+    "3": 757061,
+    "4": 756239
+  },
+  "outer_fold_rules": {
+    "exclude_validation_wells_from_training": true,
+    "exclude_validation_pads_from_train_derived_features": true,
+    "rebuild_spatial_features_per_fold": true,
+    "rebuild_normalization_per_fold": true,
+    "forbid_hidden_tvt_before_scoring": true,
+    "exclude_test_id_overlaps_from_final_training": true
+  },
+  "limitations": [
+    "只保证中位 XY 代表点的 1000 原始坐标单位连通 pad 不跨折",
+    "不保证两条完整轨迹在所有位置都相距 1000 ft",
+    "不阻止相同 Typewell 模板跨折；Typewell strict CV 作为单独诊断"
+  ]
+}

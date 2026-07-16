@@ -1,0 +1,56 @@
+{
+  "config_version": "lgbm_feature_baseline_v1",
+  "status": "frozen_for_feature_ablation",
+  "purpose": "只比较特征，不比较模型",
+  "target": "TVT_minus_last_known_TVT",
+  "final_prediction": "last_known_TVT_plus_lgbm_predicted_delta",
+  "fold_config": "configs/cv_spatial_pad_v1.json",
+  "model_family": "lightgbm.LGBMRegressor",
+  "parameter_source": "历史单模 lightgbm-3；固定树数取五折 best_iteration 中位数 1734",
+  "params": {
+    "boosting_type": "gbdt",
+    "objective": "regression",
+    "learning_rate": 0.00934485794382918,
+    "n_estimators": 1734,
+    "num_leaves": 64,
+    "min_child_samples": 40,
+    "min_child_weight": 0.24081152127177283,
+    "subsample": 0.47437582748953966,
+    "subsample_freq": 0,
+    "colsample_bytree": 0.39283351290380497,
+    "reg_alpha": 10.788188919840913,
+    "reg_lambda": 95.75401894533888,
+    "max_bin": 255,
+    "random_state": 29,
+    "bagging_seed": 29,
+    "feature_fraction_seed": 29,
+    "data_random_seed": 29,
+    "n_jobs": -1,
+    "verbose": -1
+  },
+  "training_policy": {
+    "early_stopping": false,
+    "uniform_row_weight": true,
+    "native_missing_values": true,
+    "well_id_is_feature": false,
+    "row_id_is_feature": false,
+    "test_overlap_wells_removed_from_training": true
+  },
+  "baseline_feature_groups": [
+    "position_and_progress",
+    "raw_gr",
+    "frozen_pf_and_beam_paths",
+    "typewell_global_summary"
+  ],
+  "forbidden_inputs": [
+    "hidden_TVT",
+    "same_well_train_TVT",
+    "same_well_train_surface",
+    "contact_md_lookup",
+    "pretrained_model_prediction",
+    "OOF_prediction_from_another_model",
+    "learned_trajectory",
+    "model_package_prediction"
+  ],
+  "experiment_rule": "每次只新增一个命名特征组；模型、target、fold、评价行和后处理全部固定"
+}

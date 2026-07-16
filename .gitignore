@@ -1,0 +1,56 @@
+# 比赛原始数据、模型包和历史提交体积很大，绝不进入 Git。
+input/
+
+# Python 解释器、测试和 Notebook 临时文件。
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# 本地虚拟环境和私密环境变量。
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# IDE 和操作系统临时文件。
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+*.crdownload
+
+# 训练模型、数组缓存和大型预测文件。
+*.pkl
+*.joblib
+*.cbm
+*.pt
+*.pth
+*.ckpt
+*.npy
+*.npz
+*.parquet
+
+# 常见运行输出；固定 fold 注册表在下方单独放行。
+submission.csv
+submission_*.csv
+latest_valid_submission*
+*_report.csv
+*_audit.json
+models/
+outputs/
+cache/
+caches/
+
+# 干净项目的实验 artifact 默认不提交。
+rogii_clean/artifacts/*
+
+# 只提交用于冻结 CV 的小型 fold artifact。
+!rogii_clean/artifacts/folds/
+!rogii_clean/artifacts/folds/spatial_pad_1000_v1.csv
+!rogii_clean/artifacts/folds/spatial_pad_1000_v1.meta.json

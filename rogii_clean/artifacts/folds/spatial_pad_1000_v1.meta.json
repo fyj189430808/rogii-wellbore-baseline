@@ -1,0 +1,47 @@
+{
+  "config_version": "spatial_pad_1000_v1",
+  "fold_summary": [
+    {
+      "fold": 0,
+      "hidden_row_fraction": 0.20006664924237358,
+      "hidden_rows": 757050,
+      "pads": 57,
+      "wells": 147
+    },
+    {
+      "fold": 1,
+      "hidden_row_fraction": 0.20005079295949327,
+      "hidden_rows": 756990,
+      "pads": 58,
+      "wells": 155
+    },
+    {
+      "fold": 2,
+      "hidden_row_fraction": 0.19996067641845683,
+      "hidden_rows": 756649,
+      "pads": 58,
+      "wells": 157
+    },
+    {
+      "fold": 3,
+      "hidden_row_fraction": 0.2000695562275683,
+      "hidden_rows": 757061,
+      "pads": 58,
+      "wells": 155
+    },
+    {
+      "fold": 4,
+      "hidden_row_fraction": 0.199852325152108,
+      "hidden_rows": 756239,
+      "pads": 59,
+      "wells": 159
+    }
+  ],
+  "hidden_rows": 3783989,
+  "n_splits": 5,
+  "pads": 290,
+  "radius_xy_units": 1000.0,
+  "registry_sha256": "0c217c417c6f62a2105c4056e92a23dfbaefa8b1d1fa8f5a11c13637b9cd99ab",
+  "train_dir": "H:\\kaggle\\716\\input\\data\\raw\\train",
+  "wells": 773
+}
