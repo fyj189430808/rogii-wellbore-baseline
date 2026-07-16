@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from pathlib import Path
 
 import pandas as pd
@@ -79,6 +80,7 @@ def build_feature_table(
     registry_df: pd.DataFrame,
     train_dir: Path,
     progress_interval: int = 50,
+    row_builder: Callable[[pd.DataFrame, str, int], pd.DataFrame] = build_simple_lgbm_rows,
 ) -> pd.DataFrame:
     """逐井构造特征；返回顺序固定为 well_id、row_index。"""
 
@@ -103,7 +105,7 @@ def build_feature_table(
         horizontal_df = pd.read_csv(well_path)
 
         # well_rows 只包含当前井的自然隐藏后缀；特征公式由 Task 1 的唯一接口负责。
-        well_rows = build_simple_lgbm_rows(
+        well_rows = row_builder(
             horizontal_df,
             str(registry_row.well_id),
             int(registry_row.fold),

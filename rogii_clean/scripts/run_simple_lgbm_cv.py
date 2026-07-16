@@ -26,7 +26,11 @@ PROJECT_ROOT = CLEAN_ROOT.parent
 sys.path.insert(0, str(CLEAN_ROOT))
 
 from src.lgbm_data import build_feature_table, file_sha256, load_and_validate_registry
-from src.lgbm_features import FEATURE_COLUMNS
+from src.f01b_features import ALL_F01B_FEATURE_COLUMNS, build_f01b_lgbm_rows
+from src.f01c_features import ALL_F01C_FEATURE_COLUMNS, build_f01c_lgbm_rows
+from src.f01_features import ALL_FEATURE_COLUMNS, build_f01_lgbm_rows
+from src.f02_features import ALL_F02_FEATURE_COLUMNS, build_f02_lgbm_rows
+from src.lgbm_features import FEATURE_COLUMNS, build_simple_lgbm_rows
 from src.metrics import (
     build_per_well_metrics,
     paired_well_bootstrap,
@@ -97,6 +101,10 @@ def build_experiment_fingerprint(
     source_paths = [
         Path(__file__).resolve(),
         CLEAN_ROOT / "src" / "lgbm_features.py",
+        CLEAN_ROOT / "src" / "f01_features.py",
+        CLEAN_ROOT / "src" / "f01b_features.py",
+        CLEAN_ROOT / "src" / "f01c_features.py",
+        CLEAN_ROOT / "src" / "f02_features.py",
         CLEAN_ROOT / "src" / "lgbm_data.py",
     ]
     source_hashes = {path.name: file_sha256(path) for path in source_paths}
@@ -112,7 +120,10 @@ def build_experiment_fingerprint(
 
 
 # 将大表压缩成适合内存和 LightGBM 使用的 dtype。
-def optimize_feature_table(feature_table: pd.DataFrame) -> pd.DataFrame:
+def optimize_feature_table(
+    feature_table: pd.DataFrame,
+    feature_columns: list[str],
+) -> pd.DataFrame:
     """下调模型列 dtype，同时保留评分列的 float64 精度。"""
 
     optimized = feature_table.copy()
@@ -121,7 +132,7 @@ def optimize_feature_table(feature_table: pd.DataFrame) -> pd.DataFrame:
     optimized["row_index"] = optimized["row_index"].astype(np.int32)
     optimized["target_delta"] = optimized["target_delta"].astype(np.float32)
 
-    for feature_name in FEATURE_COLUMNS:
+    for feature_name in feature_columns:
         optimized[feature_name] = optimized[feature_name].astype(np.float32)
 
     return optimized
@@ -132,11 +143,13 @@ def validate_feature_table(
     feature_table: pd.DataFrame,
     registry: pd.DataFrame,
     expected_rows: int,
+    feature_columns: list[str],
+    allow_nan_features: list[str] | None = None,
 ) -> None:
     """验证完整特征缓存与冻结注册表一致。"""
 
-    if list(feature_table[FEATURE_COLUMNS].columns) != FEATURE_COLUMNS:
-        raise ValueError("模型特征列表与冻结的 12 列不一致")
+    if list(feature_table[feature_columns].columns) != feature_columns:
+        raise ValueError("模型特征列表与冻结配置不一致")
 
     if len(feature_table) != int(expected_rows):
         raise ValueError("完整特征表评价行数不匹配")
@@ -147,15 +160,30 @@ def validate_feature_table(
     if set(feature_table["fold"].astype(int).unique()) != {0, 1, 2, 3, 4}:
         raise ValueError("完整特征表不是固定五折")
 
-    non_gr_features = [name for name in FEATURE_COLUMNS if name != "gr_raw"]
-    if not np.isfinite(
-        feature_table[non_gr_features].to_numpy(dtype=np.float64)
-    ).all():
-        raise ValueError("除 gr_raw 外的模型特征含 NaN 或 Inf")
+    # gr_raw 原本就允许缺失；额外允许列必须由实验配置逐列声明，禁止静默放宽检查。
+    allowed_nan_feature_set = {"gr_raw"}
+    if allow_nan_features is not None:
+        allowed_nan_feature_set.update(allow_nan_features)
 
-    gr_values = feature_table["gr_raw"].to_numpy(dtype=np.float64)
-    if np.isinf(gr_values).any():
-        raise ValueError("gr_raw 含 Inf")
+    unknown_allowed_features = allowed_nan_feature_set - set(feature_columns)
+    if unknown_allowed_features:
+        raise ValueError(
+            f"允许 NaN 的特征不在模型输入中：{sorted(unknown_allowed_features)}"
+        )
+
+    finite_required_features = [
+        name for name in feature_columns if name not in allowed_nan_feature_set
+    ]
+    if not np.isfinite(
+        feature_table[finite_required_features].to_numpy(dtype=np.float64)
+    ).all():
+        raise ValueError("未声明允许缺失的模型特征含 NaN 或 Inf")
+
+    # 允许缺失只代表可以含 NaN，正负无穷仍然表示公式或数据发生错误。
+    for feature_name in sorted(allowed_nan_feature_set):
+        feature_values = feature_table[feature_name].to_numpy(dtype=np.float64)
+        if np.isinf(feature_values).any():
+            raise ValueError(f"允许缺失的特征 {feature_name} 含 Inf")
 
     for column_name in ["target_tvt", "target_delta", "carry_tvt"]:
         if not np.isfinite(
@@ -181,6 +209,9 @@ def load_or_build_feature_cache(
     fingerprint: str,
     expected_rows: int,
     rebuild_cache: bool,
+    feature_columns: list[str],
+    row_builder,
+    allow_nan_features: list[str] | None = None,
 ) -> pd.DataFrame:
     """返回完整 773 井隐藏行特征表。"""
 
@@ -211,9 +242,20 @@ def load_or_build_feature_cache(
         feature_table["well_id"] = feature_table["well_id"].astype("category")
     else:
         build_start = time.perf_counter()
-        feature_table = build_feature_table(registry, train_dir, progress_interval=50)
-        feature_table = optimize_feature_table(feature_table)
-        validate_feature_table(feature_table, registry, expected_rows)
+        feature_table = build_feature_table(
+            registry,
+            train_dir,
+            progress_interval=50,
+            row_builder=row_builder,
+        )
+        feature_table = optimize_feature_table(feature_table, feature_columns)
+        validate_feature_table(
+            feature_table,
+            registry,
+            expected_rows,
+            feature_columns,
+            allow_nan_features,
+        )
         artifact_dir.mkdir(parents=True, exist_ok=True)
         feature_table.to_parquet(cache_path, index=False, compression="zstd")
         write_json(
@@ -227,7 +269,13 @@ def load_or_build_feature_cache(
             },
         )
 
-    validate_feature_table(feature_table, registry, expected_rows)
+    validate_feature_table(
+        feature_table,
+        registry,
+        expected_rows,
+        feature_columns,
+        allow_nan_features,
+    )
     return feature_table
 
 
@@ -257,6 +305,7 @@ def train_fold(
     model_params: dict,
     artifact_dir: Path,
     fingerprint: str,
+    feature_columns: list[str],
 ) -> dict:
     """训练或复用指定 fold，返回该折运行摘要。"""
 
@@ -294,12 +343,12 @@ def train_fold(
     print(
         f"fold {fold_id}：训练井 {len(train_wells)}，验证井 {len(validation_wells)}，"
         f"训练行 {len(train_indices):,}，验证行 {len(validation_indices):,}，"
-        f"特征 {len(FEATURE_COLUMNS)}，树 {model_params['n_estimators']}",
+        f"特征 {len(feature_columns)}，树 {model_params['n_estimators']}",
         flush=True,
     )
 
     fold_start = time.perf_counter()
-    x_train = feature_table.iloc[train_indices][FEATURE_COLUMNS].to_numpy(
+    x_train = feature_table.iloc[train_indices][feature_columns].to_numpy(
         dtype=np.float32,
         copy=True,
     )
@@ -307,7 +356,7 @@ def train_fold(
         dtype=np.float32,
         copy=True,
     )
-    x_validation = feature_table.iloc[validation_indices][FEATURE_COLUMNS].to_numpy(
+    x_validation = feature_table.iloc[validation_indices][feature_columns].to_numpy(
         dtype=np.float32,
         copy=True,
     )
@@ -342,7 +391,7 @@ def train_fold(
 
     importance = pd.DataFrame(
         {
-            "feature": FEATURE_COLUMNS,
+            "feature": feature_columns,
             "gain": model.booster_.feature_importance(importance_type="gain"),
             "split": model.booster_.feature_importance(importance_type="split"),
         }
@@ -365,7 +414,7 @@ def train_fold(
         "validation_wells": int(len(validation_wells)),
         "training_rows": int(len(train_indices)),
         "validation_rows": int(len(validation_indices)),
-        "features": int(len(FEATURE_COLUMNS)),
+        "features": int(len(feature_columns)),
         "trees": int(model_params["n_estimators"]),
         "seconds": time.perf_counter() - fold_start,
         "micro_rmse": float(np.sqrt(np.mean(error * error))),
@@ -391,6 +440,7 @@ def finalize_complete_cv(
     expected_rows: int,
     experiment_config: dict,
     model_params: dict,
+    feature_columns: list[str],
 ) -> dict | None:
     """若五折齐全则生成完整指标，否则返回 None。"""
 
@@ -440,7 +490,7 @@ def finalize_complete_cv(
     write_json(artifact_dir / "parameter_list.json", model_params)
     write_json(
         artifact_dir / "feature_list.json",
-        {"feature_count": len(FEATURE_COLUMNS), "features": FEATURE_COLUMNS},
+        {"feature_count": len(feature_columns), "features": feature_columns},
     )
     write_json(
         artifact_dir / "runtime.json",
@@ -492,6 +542,24 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+# 配置只允许选择已经显式实现的特征 builder，禁止按列名自动猜测。
+def select_feature_definition(experiment_config: dict):
+    """返回当前实验的固定特征列表和逐井构造函数。"""
+
+    feature_version = str(experiment_config["feature_version"])
+    if feature_version == "simple_horizontal_12_v1":
+        return FEATURE_COLUMNS, build_simple_lgbm_rows
+    if feature_version == "prefix_u_slope_22_v1":
+        return ALL_FEATURE_COLUMNS, build_f01_lgbm_rows
+    if feature_version == "prefix_u_slope_19_v1":
+        return ALL_F01B_FEATURE_COLUMNS, build_f01b_lgbm_rows
+    if feature_version == "prefix_u_gated_projection_22_v1":
+        return ALL_F01C_FEATURE_COLUMNS, build_f01c_lgbm_rows
+    if feature_version == "prefix_u_stability_25_v1":
+        return ALL_F02_FEATURE_COLUMNS, build_f02_lgbm_rows
+    raise ValueError(f"未知 feature_version：{feature_version}")
+
+
 # 主流程严格按照：注册表 → 特征缓存 → 独立 fold 模型 → 完整 OOF。
 def main() -> None:
     """运行指定 fold 或完整五折。"""
@@ -500,8 +568,9 @@ def main() -> None:
     experiment_config = read_json(args.config.resolve())
     model_config_path = CLEAN_ROOT / experiment_config["model_config"]
     model_params = read_json(model_config_path)["params"]
+    feature_columns, row_builder = select_feature_definition(experiment_config)
 
-    if experiment_config["feature_columns"] != FEATURE_COLUMNS:
+    if experiment_config["feature_columns"] != feature_columns:
         raise ValueError("实验配置中的特征顺序与代码不一致")
 
     registry_path = CLEAN_ROOT / experiment_config["fold_registry"]
@@ -532,6 +601,9 @@ def main() -> None:
         fingerprint=fingerprint,
         expected_rows=int(experiment_config["expected_rows"]),
         rebuild_cache=bool(args.rebuild_cache),
+        feature_columns=feature_columns,
+        row_builder=row_builder,
+        allow_nan_features=experiment_config.get("allow_nan_features", []),
     )
 
     requested_folds = range(5) if args.fold == "all" else [int(args.fold)]
@@ -543,6 +615,7 @@ def main() -> None:
             model_params,
             artifact_dir,
             fingerprint,
+            feature_columns,
         )
 
     metrics = finalize_complete_cv(
@@ -551,6 +624,7 @@ def main() -> None:
         int(experiment_config["expected_rows"]),
         experiment_config,
         model_params,
+        feature_columns,
     )
     if metrics is None:
         print("尚未完成五折；已保存当前 fold，可用 --fold all 继续。", flush=True)
