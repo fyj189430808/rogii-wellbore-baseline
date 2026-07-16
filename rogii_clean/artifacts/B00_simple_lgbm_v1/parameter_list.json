@@ -1,0 +1,21 @@
+{
+  "bagging_seed": 29,
+  "boosting_type": "gbdt",
+  "colsample_bytree": 0.39283351290380497,
+  "data_random_seed": 29,
+  "feature_fraction_seed": 29,
+  "learning_rate": 0.00934485794382918,
+  "max_bin": 255,
+  "min_child_samples": 40,
+  "min_child_weight": 0.24081152127177283,
+  "n_estimators": 1734,
+  "n_jobs": -1,
+  "num_leaves": 64,
+  "objective": "regression",
+  "random_state": 29,
+  "reg_alpha": 10.788188919840913,
+  "reg_lambda": 95.75401894533888,
+  "subsample": 0.47437582748953966,
+  "subsample_freq": 0,
+  "verbose": -1
+}

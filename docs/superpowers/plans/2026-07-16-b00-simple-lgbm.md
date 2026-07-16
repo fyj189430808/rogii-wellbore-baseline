@@ -545,7 +545,7 @@ Run from `rogii_clean`:
 python scripts/reproduce_simple_lgbm.py --train-dir H:\kaggle\716\input\data\raw\train --fold 0
 ```
 
-Before running, report the 616 training wells, 147 validation wells, approximately 3.027 million training rows, 757,050 validation rows, 12 features, 1,734 trees, expected artifact paths, and resume behavior.
+Before running, report the 626 training wells, 147 validation wells, 3,026,939 training rows, 757,050 validation rows, 12 features, 1,734 trees, expected artifact paths, and resume behavior.
 
 - [ ] **Step 4: Audit fold 0 before continuing**
 

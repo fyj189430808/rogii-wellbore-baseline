@@ -1,0 +1,90 @@
+{
+  "folds": [
+    {
+      "baseline_micro_rmse": 13.744039812010797,
+      "fold": 0,
+      "macro_well_rmse": 13.505814856597544,
+      "median_well_rmse": 11.295547935579197,
+      "micro_rmse": 16.67637717918234,
+      "micro_rmse_delta_vs_baseline": 2.9323373671715416,
+      "p90_well_rmse": 23.235608202984864,
+      "rows": 757050,
+      "well_win_rate": 0.5034013605442177,
+      "wells": 147,
+      "worst_well_rmse": 55.102364003521956
+    },
+    {
+      "baseline_micro_rmse": 16.216936894043606,
+      "fold": 1,
+      "macro_well_rmse": 11.986998269247755,
+      "median_well_rmse": 10.46515559793586,
+      "micro_rmse": 14.287188925156286,
+      "micro_rmse_delta_vs_baseline": -1.9297479688873196,
+      "p90_well_rmse": 18.70661396718417,
+      "rows": 756990,
+      "well_win_rate": 0.5483870967741935,
+      "wells": 155,
+      "worst_well_rmse": 50.13158119057795
+    },
+    {
+      "baseline_micro_rmse": 15.732524765515826,
+      "fold": 2,
+      "macro_well_rmse": 12.859135866071725,
+      "median_well_rmse": 10.510138824544255,
+      "micro_rmse": 16.214821902994903,
+      "micro_rmse_delta_vs_baseline": 0.4822971374790761,
+      "p90_well_rmse": 23.085233974795635,
+      "rows": 756649,
+      "well_win_rate": 0.5414012738853503,
+      "wells": 157,
+      "worst_well_rmse": 68.86639661092656
+    },
+    {
+      "baseline_micro_rmse": 16.793211128143444,
+      "fold": 3,
+      "macro_well_rmse": 12.967014289659215,
+      "median_well_rmse": 10.55484969555646,
+      "micro_rmse": 16.271051504464076,
+      "micro_rmse_delta_vs_baseline": -0.522159623679368,
+      "p90_well_rmse": 22.34288523512436,
+      "rows": 757061,
+      "well_win_rate": 0.535483870967742,
+      "wells": 155,
+      "worst_well_rmse": 52.99123752974589
+    },
+    {
+      "baseline_micro_rmse": 16.85929605358452,
+      "fold": 4,
+      "macro_well_rmse": 12.895185745392451,
+      "median_well_rmse": 10.189711237743746,
+      "micro_rmse": 16.695688480132194,
+      "micro_rmse_delta_vs_baseline": -0.16360757345232457,
+      "p90_well_rmse": 23.078219340646676,
+      "rows": 756239,
+      "well_win_rate": 0.5345911949685535,
+      "wells": 159,
+      "worst_well_rmse": 63.605310185505544
+    }
+  ],
+  "overall": {
+    "baseline_micro_rmse": 15.909852870734554,
+    "macro_well_rmse": 12.83628149423167,
+    "median_well_rmse": 10.581361901068178,
+    "micro_rmse": 16.05377201961013,
+    "micro_rmse_delta_vs_baseline": 0.14391914887557533,
+    "p90_well_rmse": 22.32601676352108,
+    "rows": 3783989,
+    "well_win_rate": 0.5329883570504528,
+    "wells": 773,
+    "worst_well_rmse": 68.86639661092656
+  },
+  "paired_well_bootstrap": {
+    "ci95_high": 0.9169069093699125,
+    "ci95_low": -0.5806854004039543,
+    "mean_delta": 0.15390528545143622,
+    "n_resamples": 2000,
+    "probability_better": 0.357,
+    "seed": 42
+  },
+  "prediction_file": "H:\\kaggle\\716\\rogii_clean\\artifacts\\B00_simple_lgbm_v1\\predictions.parquet"
+}

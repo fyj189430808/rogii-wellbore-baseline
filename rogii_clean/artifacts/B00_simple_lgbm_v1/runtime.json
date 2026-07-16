@@ -1,0 +1,71 @@
+{
+  "fingerprint": "814e49c2036166e5119698d71c34fefa29a0e303218cc7da98d93766e2c2efcd",
+  "folds": [
+    {
+      "carry_micro_rmse": 13.744039812010797,
+      "features": 12,
+      "fingerprint": "814e49c2036166e5119698d71c34fefa29a0e303218cc7da98d93766e2c2efcd",
+      "fold": 0,
+      "micro_rmse": 16.676377179182335,
+      "seconds": 74.18545119999999,
+      "training_rows": 3026939,
+      "training_wells": 626,
+      "trees": 1734,
+      "validation_rows": 757050,
+      "validation_wells": 147
+    },
+    {
+      "carry_micro_rmse": 16.216936894043606,
+      "features": 12,
+      "fingerprint": "814e49c2036166e5119698d71c34fefa29a0e303218cc7da98d93766e2c2efcd",
+      "fold": 1,
+      "micro_rmse": 14.287188925156288,
+      "seconds": 83.34962900000028,
+      "training_rows": 3026999,
+      "training_wells": 618,
+      "trees": 1734,
+      "validation_rows": 756990,
+      "validation_wells": 155
+    },
+    {
+      "carry_micro_rmse": 15.732524765515825,
+      "features": 12,
+      "fingerprint": "814e49c2036166e5119698d71c34fefa29a0e303218cc7da98d93766e2c2efcd",
+      "fold": 2,
+      "micro_rmse": 16.2148219029949,
+      "seconds": 75.11458309999944,
+      "training_rows": 3027340,
+      "training_wells": 616,
+      "trees": 1734,
+      "validation_rows": 756649,
+      "validation_wells": 157
+    },
+    {
+      "carry_micro_rmse": 16.79321112814344,
+      "features": 12,
+      "fingerprint": "814e49c2036166e5119698d71c34fefa29a0e303218cc7da98d93766e2c2efcd",
+      "fold": 3,
+      "micro_rmse": 16.271051504464076,
+      "seconds": 88.9209909000001,
+      "training_rows": 3026928,
+      "training_wells": 618,
+      "trees": 1734,
+      "validation_rows": 757061,
+      "validation_wells": 155
+    },
+    {
+      "carry_micro_rmse": 16.85929605358452,
+      "features": 12,
+      "fingerprint": "814e49c2036166e5119698d71c34fefa29a0e303218cc7da98d93766e2c2efcd",
+      "fold": 4,
+      "micro_rmse": 16.695688480132194,
+      "seconds": 78.75574150000102,
+      "training_rows": 3027750,
+      "training_wells": 614,
+      "trees": 1734,
+      "validation_rows": 756239,
+      "validation_wells": 159
+    }
+  ],
+  "total_fold_seconds": 400.32639570000083
+}

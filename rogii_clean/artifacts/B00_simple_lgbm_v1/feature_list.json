@@ -1,0 +1,17 @@
+{
+  "feature_count": 12,
+  "features": [
+    "last_visible_tvt",
+    "md_since_visible_end",
+    "hidden_fraction",
+    "x_current",
+    "y_current",
+    "z_current",
+    "dx_from_visible_end",
+    "dy_from_visible_end",
+    "dz_from_visible_end",
+    "dxy_from_visible_end",
+    "gr_raw",
+    "gr_missing"
+  ]
+}
