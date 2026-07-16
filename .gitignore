@@ -21,6 +21,7 @@ env/
 # IDE 和操作系统临时文件。
 .vscode/
 .idea/
+.worktrees/
 Thumbs.db
 .DS_Store
 *.crdownload
