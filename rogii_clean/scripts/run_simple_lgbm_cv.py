@@ -30,7 +30,54 @@ from src.f01b_features import ALL_F01B_FEATURE_COLUMNS, build_f01b_lgbm_rows
 from src.f01c_features import ALL_F01C_FEATURE_COLUMNS, build_f01c_lgbm_rows
 from src.f01_features import ALL_FEATURE_COLUMNS, build_f01_lgbm_rows
 from src.f02_features import ALL_F02_FEATURE_COLUMNS, build_f02_lgbm_rows
+from src.f02a_features import ALL_F02A_FEATURE_COLUMNS, build_f02a_lgbm_rows
+from src.f03_features import ALL_F03_FEATURE_COLUMNS, build_f03_lgbm_rows
 from src.lgbm_features import FEATURE_COLUMNS, build_simple_lgbm_rows
+from src.rf01a_features import ALL_RF01A_FEATURE_COLUMNS, build_rf01a_lgbm_rows
+from src.rf01a2_features import ALL_RF01A2_FEATURE_COLUMNS, build_rf01a2_lgbm_rows
+from src.rf01b_features import ALL_RF01B_FEATURE_COLUMNS, build_rf01b_lgbm_rows
+from src.rf01c_std_features import (
+    ALL_RF01C_STD_FEATURE_COLUMNS,
+    build_rf01c_std_lgbm_rows,
+)
+from src.rf01c_ratio_features import (
+    ALL_RF01C_RATIO_FEATURE_COLUMNS,
+    build_rf01c_ratio_lgbm_rows,
+)
+from src.rf01c_curvature_features import (
+    ALL_RF01C_CURVATURE_FEATURE_COLUMNS,
+    build_rf01c_curvature_lgbm_rows,
+)
+from src.rf01d_projection_features import (
+    ALL_RF01D_FEATURE_COLUMNS,
+    build_rf01d_lgbm_rows,
+)
+from src.rf01e_slope_subset_features import (
+    ALL_RF01E_FEATURE_COLUMNS,
+    ALL_RF01F_FEATURE_COLUMNS,
+    build_rf01e_lgbm_rows,
+    build_rf01f_lgbm_rows,
+)
+from src.rf02a_gr_missing_features import (
+    ALL_RF02A_FEATURE_COLUMNS,
+    build_rf02a_lgbm_rows,
+)
+from src.rf02a_mask_shift_control_features import (
+    ALL_RF02A_CONTROL_FEATURE_COLUMNS,
+    build_rf02a_mask_shift_control_rows,
+)
+from src.rf02a_ablation_features import (
+    ALL_RF02A_LOCAL_FEATURE_COLUMNS,
+    ALL_RF02A_WELL_FEATURE_COLUMNS,
+    build_rf02a_local_null_rows,
+    build_rf02a_local_rows,
+    build_rf02a_well_null_rows,
+    build_rf02a_well_rows,
+)
+from src.rf02b_local_gr_quality_features import (
+    ALL_RF02B_FEATURE_COLUMNS,
+    build_rf02b_lgbm_rows,
+)
 from src.metrics import (
     build_per_well_metrics,
     paired_well_bootstrap,
@@ -105,6 +152,20 @@ def build_experiment_fingerprint(
         CLEAN_ROOT / "src" / "f01b_features.py",
         CLEAN_ROOT / "src" / "f01c_features.py",
         CLEAN_ROOT / "src" / "f02_features.py",
+        CLEAN_ROOT / "src" / "f02a_features.py",
+        CLEAN_ROOT / "src" / "f03_features.py",
+        CLEAN_ROOT / "src" / "rf01a_features.py",
+        CLEAN_ROOT / "src" / "rf01a2_features.py",
+        CLEAN_ROOT / "src" / "rf01b_features.py",
+        CLEAN_ROOT / "src" / "rf01c_std_features.py",
+        CLEAN_ROOT / "src" / "rf01c_ratio_features.py",
+        CLEAN_ROOT / "src" / "rf01c_curvature_features.py",
+        CLEAN_ROOT / "src" / "rf01d_projection_features.py",
+        CLEAN_ROOT / "src" / "rf01e_slope_subset_features.py",
+        CLEAN_ROOT / "src" / "rf02a_gr_missing_features.py",
+        CLEAN_ROOT / "src" / "rf02a_mask_shift_control_features.py",
+        CLEAN_ROOT / "src" / "rf02a_ablation_features.py",
+        CLEAN_ROOT / "src" / "rf02b_local_gr_quality_features.py",
         CLEAN_ROOT / "src" / "lgbm_data.py",
     ]
     source_hashes = {path.name: file_sha256(path) for path in source_paths}
@@ -557,6 +618,42 @@ def select_feature_definition(experiment_config: dict):
         return ALL_F01C_FEATURE_COLUMNS, build_f01c_lgbm_rows
     if feature_version == "prefix_u_stability_25_v1":
         return ALL_F02_FEATURE_COLUMNS, build_f02_lgbm_rows
+    if feature_version == "prefix_u_std500_20_v1":
+        return ALL_F02A_FEATURE_COLUMNS, build_f02a_lgbm_rows
+    if feature_version == "prefix_u_xy_slope_19_v1":
+        return ALL_F03_FEATURE_COLUMNS, build_f03_lgbm_rows
+    if feature_version == "rf01_huber_slopes_17_v1":
+        return ALL_RF01A_FEATURE_COLUMNS, build_rf01a_lgbm_rows
+    if feature_version == "rf01_hybrid_slopes_17_v1":
+        return ALL_RF01A2_FEATURE_COLUMNS, build_rf01a2_lgbm_rows
+    if feature_version == "rf01_huber_slope_differences_21_v1":
+        return ALL_RF01B_FEATURE_COLUMNS, build_rf01b_lgbm_rows
+    if feature_version == "rf01_huber_plus_adjacent_std_22_v1":
+        return ALL_RF01C_STD_FEATURE_COLUMNS, build_rf01c_std_lgbm_rows
+    if feature_version == "rf01_huber_plus_positive_ratio_22_v1":
+        return ALL_RF01C_RATIO_FEATURE_COLUMNS, build_rf01c_ratio_lgbm_rows
+    if feature_version == "rf01_huber_plus_curvature_22_v1":
+        return ALL_RF01C_CURVATURE_FEATURE_COLUMNS, build_rf01c_curvature_lgbm_rows
+    if feature_version == "rf01_huber_plus_projection_22_v1":
+        return ALL_RF01D_FEATURE_COLUMNS, build_rf01d_lgbm_rows
+    if feature_version == "rf01_huber_slopes_50_500_1000_15_v1":
+        return ALL_RF01E_FEATURE_COLUMNS, build_rf01e_lgbm_rows
+    if feature_version == "rf01_huber_slope_500_13_v1":
+        return ALL_RF01F_FEATURE_COLUMNS, build_rf01f_lgbm_rows
+    if feature_version == "rf02_gr_missing_geometry_21_v1":
+        return ALL_RF02A_FEATURE_COLUMNS, build_rf02a_lgbm_rows
+    if feature_version == "rf02_gr_missing_mask_shift_control_21_v1":
+        return ALL_RF02A_CONTROL_FEATURE_COLUMNS, build_rf02a_mask_shift_control_rows
+    if feature_version == "rf02_gr_missing_well_only_14_v1":
+        return ALL_RF02A_WELL_FEATURE_COLUMNS, build_rf02a_well_rows
+    if feature_version == "rf02_gr_missing_well_null_14_v1":
+        return ALL_RF02A_WELL_FEATURE_COLUMNS, build_rf02a_well_null_rows
+    if feature_version == "rf02_gr_missing_centered_local_15_v1":
+        return ALL_RF02A_LOCAL_FEATURE_COLUMNS, build_rf02a_local_rows
+    if feature_version == "rf02_gr_missing_centered_local_null_15_v1":
+        return ALL_RF02A_LOCAL_FEATURE_COLUMNS, build_rf02a_local_null_rows
+    if feature_version == "rf02_local_gr_quality_18_v1":
+        return ALL_RF02B_FEATURE_COLUMNS, build_rf02b_lgbm_rows
     raise ValueError(f"未知 feature_version：{feature_version}")
 
 

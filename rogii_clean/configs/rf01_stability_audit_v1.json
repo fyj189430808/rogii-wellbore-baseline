@@ -1,0 +1,32 @@
+{
+  "experiment_id": "RF01_stability_audit_v1",
+  "experiment_type": "diagnostic_only",
+  "source_experiment_id": "RF01a_huber_slopes_v1",
+  "source_config": "configs/rf01a_huber_slopes_v1.json",
+  "source_artifact_dir": "artifacts/RF01a_huber_slopes_v1",
+  "source_feature_cache": "artifacts/RF01a_huber_slopes_v1/feature_cache.parquet",
+  "model_config": "configs/lgbm_feature_baseline_v1.json",
+  "fold_registry": "artifacts/folds/spatial_pad_1000_v1.csv",
+  "fold_registry_sha256": "0c217c417c6f62a2105c4056e92a23dfbaefa8b1d1fa8f5a11c13637b9cd99ab",
+  "b00_prediction_file": "artifacts/B00_simple_lgbm_v1/predictions.parquet",
+  "expected_wells": 773,
+  "expected_rows": 3783989,
+  "reused_folds": [
+    0,
+    1
+  ],
+  "new_folds": [
+    2,
+    3,
+    4
+  ],
+  "original_rf01_decision": "not_promoted_and_unchanged",
+  "allow_reselection": false,
+  "allow_parameter_change": false,
+  "pre_registered_selection_reasons": [
+    "公式最简单。",
+    "fold 1 损失最小。",
+    "不含派生程度更高的差值、曲率和无界外推。",
+    "选择依据不使用 folds 2–4。"
+  ]
+}

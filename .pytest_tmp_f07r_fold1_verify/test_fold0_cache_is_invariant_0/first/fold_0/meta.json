@@ -1,0 +1,56 @@
+{
+  "experiment_id": "F07R_neighbor_cache_v1",
+  "created_at": "2026-07-17T09:38:59.184104+00:00",
+  "completed": true,
+  "outer_fold": 0,
+  "wells": 5,
+  "rows": 300,
+  "keys_unique": true,
+  "feature_columns": [
+    "neighbor_relative_U_prior",
+    "neighbor_relative_slope",
+    "neighbor_curvature",
+    "neighbor_MAD",
+    "nearest_trajectory_distance",
+    "azimuth_difference",
+    "parallel_overlap_length",
+    "support_well_count",
+    "support_effective_weight",
+    "neighbor_disagreement"
+  ],
+  "feature_count": 10,
+  "cache_lineage_columns": [
+    "outer_fold",
+    "target_pad_id",
+    "target_role"
+  ],
+  "lineage_columns": [
+    "outer_fold",
+    "target_well_id",
+    "target_pad_id",
+    "target_role",
+    "target_legal_sha256",
+    "allowed_source_well_count",
+    "allowed_source_well_ids_json",
+    "allowed_source_set_sha256",
+    "candidate_source_well_count",
+    "candidate_source_well_ids_json",
+    "source_fold_ids_json",
+    "same_well_excluded",
+    "same_pad_excluded",
+    "validation_fold_excluded"
+  ],
+  "source_fold_excluded": 0,
+  "validation_pad_ids": [
+    "pad_a",
+    "pad_d"
+  ],
+  "same_well_excluded": true,
+  "same_pad_excluded": true,
+  "source_set_fingerprint": "65e968a3aaf6eae36af9791ef51b832dd3ec94f3254f0720d28be86eabc47fe5",
+  "family_fingerprint": "91cd82d579b54feed855a76f9f4e48b8ab387df58607a8b3e52d164e0f2aa96f",
+  "cache_path": "H:\\kaggle\\716\\.pytest_tmp_f07r_fold1_verify\\test_fold0_cache_is_invariant_0\\first\\fold_0\\neighbor_feature_cache.parquet",
+  "cache_sha256": "5a67f19aea1c80923690c449089a7a164ad2532d0d9e223f1540571b48f4487d",
+  "lineage_path": "H:\\kaggle\\716\\.pytest_tmp_f07r_fold1_verify\\test_fold0_cache_is_invariant_0\\first\\fold_0\\source_exclusion_lineage.parquet",
+  "lineage_sha256": "6666cf5d48e323cb1ab2d3eee6f5a02adc47a49ef4676c3c25578c4c2dd0d46b"
+}

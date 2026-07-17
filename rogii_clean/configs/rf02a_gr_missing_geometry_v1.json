@@ -1,0 +1,39 @@
+{
+  "experiment_id": "RF02a_gr_missing_geometry_v1",
+  "feature_version": "rf02_gr_missing_geometry_21_v1",
+  "feature_columns": [
+    "last_visible_tvt",
+    "md_since_visible_end",
+    "hidden_fraction",
+    "x_current",
+    "y_current",
+    "z_current",
+    "dx_from_visible_end",
+    "dy_from_visible_end",
+    "dz_from_visible_end",
+    "dxy_from_visible_end",
+    "gr_raw",
+    "gr_missing",
+    "gr_gap_length_ft",
+    "gr_distance_to_left_observed_ft",
+    "gr_distance_to_right_observed_ft",
+    "gr_relative_position_inside_gap",
+    "gr_valid_fraction_50",
+    "gr_valid_fraction_100",
+    "gr_valid_fraction_200",
+    "well_hidden_gr_valid_fraction",
+    "well_hidden_longest_gr_gap_ft"
+  ],
+  "allow_nan_features": [
+    "gr_distance_to_left_observed_ft",
+    "gr_distance_to_right_observed_ft",
+    "gr_relative_position_inside_gap"
+  ],
+  "model_config": "configs/lgbm_feature_baseline_v1.json",
+  "fold_registry": "artifacts/folds/spatial_pad_1000_v1.csv",
+  "fold_registry_sha256": "0c217c417c6f62a2105c4056e92a23dfbaefa8b1d1fa8f5a11c13637b9cd99ab",
+  "expected_wells": 773,
+  "expected_rows": 3783989,
+  "target": "target_delta",
+  "final_prediction": "last_visible_tvt_plus_predicted_delta"
+}

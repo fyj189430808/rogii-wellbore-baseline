@@ -1,0 +1,298 @@
+{
+  "config_id": "f05a_candidate_generator_v1",
+  "schema_version": 1,
+  "frozen": true,
+  "source": {
+    "notebook": "rogii-dual-track-prefix-calibrated-geosteering.ipynb",
+    "notebook_section": "cell14 candidate feature generator",
+    "policy": "freeze_existing_values_without_tuning"
+  },
+  "randomness": {
+    "seed": 42,
+    "original_numba_pf_kernels_set_seed_internally": false,
+    "note": "Notebook declares SEED=42, but the single ANCC-PF and Z-PF Numba kernels do not explicitly call np.random.seed."
+  },
+  "input_schema": {
+    "horizontal_well_required_columns": [
+      "MD",
+      "Z",
+      "GR",
+      "TVT_input"
+    ],
+    "typewell_required_columns": [
+      "TVT",
+      "GR"
+    ],
+    "identity_fields": [
+      "well_id_from_filename",
+      "row_index"
+    ],
+    "visible_mask": "TVT_input.notna()",
+    "prediction_mask": "TVT_input.isna()",
+    "last_known_tvt_definition": "last visible TVT_input value"
+  },
+  "shared_gr_processing": {
+    "typewell_sort_column": "TVT",
+    "typewell_grid_step_ft": 0.2,
+    "gr_sigma_source": "std(visible_horizontal_GR - interp(typewell_GR, visible_TVT_input))",
+    "gr_sigma_min_visible_rows": 20,
+    "gr_sigma_default_api": 30.0,
+    "gr_sigma_clip_min_api": 10.0,
+    "gr_sigma_clip_max_api": 60.0,
+    "likelihood": "exp(-0.5 * normalized_GR_residual^2)",
+    "likelihood_squared_residual_cap": 600.0,
+    "likelihood_floor": 1e-300
+  },
+  "ancc_particle_filter": {
+    "particle_count": 600,
+    "state_coordinate": "U = TVT + Z",
+    "initial_position": "last_known_tvt + last_known_Z",
+    "initial_position_std_ft": 0.3,
+    "initial_rate_source": "median((diff(TVT_input) + diff(Z)) / diff(MD)) over last 30 visible rows",
+    "initial_rate_tail_rows": 30,
+    "initial_rate_min_valid_steps": 3,
+    "initial_rate_fallback": 0.0,
+    "initial_rate_std": 0.01,
+    "rate_momentum": 0.998,
+    "rate_noise_std": 0.002,
+    "position_noise_std_ft": 0.005,
+    "minimum_md_step_ft": 1.0,
+    "tvt_clip_margin_ft": 50.0,
+    "resample_effective_particle_fraction": 0.5,
+    "resample_position_roughening_std_ft": 0.1,
+    "resample_rate_roughening_std": 0.001,
+    "missing_horizontal_gr_behavior": "skip_GR_weight_update_for_that_row",
+    "point_prediction": "particle_weighted_mean_TVT",
+    "uncertainty": "particle_weighted_TVT_standard_deviation"
+  },
+  "z_particle_filter": {
+    "particle_count": 600,
+    "state_coordinate": "TVT",
+    "initial_position": "last_known_tvt",
+    "initial_position_std_ft": 0.5,
+    "initial_velocity_source": "median(diff(TVT_input) / diff(MD)) over last 20 visible rows",
+    "initial_velocity_tail_rows": 20,
+    "initial_velocity_min_valid_steps": 3,
+    "initial_velocity_fallback": 0.0,
+    "initial_velocity_std": 0.02,
+    "velocity_momentum": 0.993,
+    "velocity_noise_std": 0.005,
+    "position_noise_std_ft": 0.01,
+    "minimum_md_step_ft": 1.0,
+    "tvt_clip_margin_ft": 50.0,
+    "gr_smoothing_window_rows": 5,
+    "gr_smoothing_centered": true,
+    "gr_smoothing_min_periods": 1,
+    "smoothed_gr_likelihood_weight": 0.3,
+    "raw_gr_likelihood_weight": 0.7,
+    "smoothed_gr_sigma_multiplier": 1.5,
+    "visible_geometry_fit": "TVT_slope = beta * Z_slope + intercept",
+    "visible_geometry_fit_min_valid_steps": 10,
+    "visible_geometry_residual_std_floor": 0.001,
+    "visible_geometry_fallback_beta": -1.0,
+    "visible_geometry_fallback_intercept": 0.0,
+    "visible_geometry_fallback_residual_std": 0.1,
+    "velocity_likelihood_sigma_multiplier": 2.0,
+    "velocity_likelihood_sigma_floor": 0.005,
+    "resample_effective_particle_fraction": 0.5,
+    "resample_position_roughening_std_ft": 0.2,
+    "resample_velocity_roughening_std": 0.003,
+    "missing_horizontal_gr_behavior": "skip_GR_weight_update_for_that_row_but_keep_geometry_velocity_update",
+    "point_prediction": "particle_weighted_mean_TVT"
+  },
+  "beam_search": {
+    "start_position": "nearest typewell TVT sample to last_known_tvt",
+    "allowed_index_moves_per_row": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "transition_cost": "move_cost * abs(index_move)",
+    "observation_cost": "(horizontal_GR - typewell_GR)^2 / gr_error_scale",
+    "gr_smoothing": "centered rolling mean with window = 2 * smoothing_radius + 1",
+    "configs": [
+      {
+        "tag": "cons",
+        "beam_size": 10,
+        "move_cost": 20.0,
+        "gr_error_scale": 144.0,
+        "smoothing_radius": 2
+      },
+      {
+        "tag": "loose",
+        "beam_size": 10,
+        "move_cost": 8.0,
+        "gr_error_scale": 64.0,
+        "smoothing_radius": 2
+      },
+      {
+        "tag": "vcons",
+        "beam_size": 8,
+        "move_cost": 35.0,
+        "gr_error_scale": 220.0,
+        "smoothing_radius": 1
+      },
+      {
+        "tag": "sm5",
+        "beam_size": 10,
+        "move_cost": 14.0,
+        "gr_error_scale": 90.0,
+        "smoothing_radius": 5
+      },
+      {
+        "tag": "vloose",
+        "beam_size": 20,
+        "move_cost": 4.0,
+        "gr_error_scale": 36.0,
+        "smoothing_radius": 3
+      },
+      {
+        "tag": "mid",
+        "beam_size": 12,
+        "move_cost": 12.0,
+        "gr_error_scale": 100.0,
+        "smoothing_radius": 3
+      },
+      {
+        "tag": "stiff",
+        "beam_size": 15,
+        "move_cost": 25.0,
+        "gr_error_scale": 180.0,
+        "smoothing_radius": 2
+      }
+    ],
+    "summary_statistics": [
+      "mean",
+      "standard_deviation",
+      "median"
+    ]
+  },
+  "multiscale_ncc": {
+    "template_source": "visible horizontal-well GR indexed by visible TVT_input",
+    "query_source": "prediction-zone horizontal-well GR",
+    "half_window_rows": [
+      8,
+      15,
+      25
+    ],
+    "full_window_rows": [
+      17,
+      31,
+      51
+    ],
+    "candidate_stride_rows": 3,
+    "pre_smoothing_window_rows": 5,
+    "pre_smoothing_centered": true,
+    "pre_smoothing_min_periods": 1,
+    "normalization_epsilon": 1e-6,
+    "score_ensemble_weight": "exp(3.0 * NCC_score)",
+    "score_ensemble_temperature_multiplier": 3.0,
+    "consensus_path": "mean(sc8_path, sc15_path, sc25_path)",
+    "trust_definition": "clip(number_of_visible_rows / 200.0, 0.0, 0.6)",
+    "trust_visible_row_divisor": 200.0,
+    "trust_min": 0.0,
+    "trust_max": 0.6,
+    "beam_reference": "mean(beam_cons_path, beam_sm5_path)",
+    "hybrid_path": "(1.0 - sc_trust) * beam_reference + sc_trust * sc_ens_path"
+  },
+  "output_keys": [
+    "well",
+    "id"
+  ],
+  "output_feature_columns": [
+    "pf_ancc_delta",
+    "pf_ancc_std",
+    "pf_z_delta",
+    "pf_vs_z",
+    "beam_cons_d",
+    "beam_loose_d",
+    "beam_vcons_d",
+    "beam_sm5_d",
+    "beam_vloose_d",
+    "beam_mid_d",
+    "beam_stiff_d",
+    "beam_mean_d",
+    "beam_std_d",
+    "beam_med_d",
+    "sc8_d",
+    "sc8_sc",
+    "sc15_d",
+    "sc15_sc",
+    "sc25_d",
+    "sc25_sc",
+    "sc_cons_d",
+    "sc_ens_d",
+    "sc_trust",
+    "hyb_d"
+  ],
+  "output_feature_count": 24,
+  "output_conventions": {
+    "delta_suffix_d": "candidate_TVT - last_known_tvt",
+    "pf_vs_z": "pf_ancc - pf_z",
+    "score_suffix_sc": "maximum normalized cross-correlation score"
+  },
+  "intermediate_columns_not_model_features": [
+    "pf_ancc",
+    "pf_z",
+    "pf_z_std",
+    "absolute_beam_paths",
+    "absolute_sc_paths",
+    "absolute_hybrid_path"
+  ],
+  "explicitly_disabled_exact_columns": [
+    "target",
+    "TVT",
+    "ANCC",
+    "ASTNU",
+    "ASTNL",
+    "EGFDU",
+    "EGFDL",
+    "BUDA",
+    "sig_std",
+    "sig_mean_d",
+    "spatial_ancc_d",
+    "spatial_knn_dist",
+    "dense_ancc",
+    "dense_std",
+    "dense_dist",
+    "tvt_dense_d",
+    "tvt_densew_d",
+    "tvt_dense50_d",
+    "dense_rmse",
+    "dense_bias",
+    "dense_nb_std",
+    "pf_vs_spatial",
+    "pf_vs_dense",
+    "spatial_vs_dense",
+    "beam_vs_spatial",
+    "sc_vs_beam",
+    "likpf_mean_d"
+  ],
+  "explicitly_disabled_column_prefixes": [
+    "tvtF_",
+    "tvtFw_",
+    "tvtF50_",
+    "bw_",
+    "bww_",
+    "bw50_",
+    "bw_early_",
+    "bw_mid_",
+    "frm_rmse_",
+    "form_",
+    "spatial_",
+    "dense_",
+    "tvt_dense",
+    "likpf_"
+  ],
+  "disabled_information_sources": [
+    "prediction-zone true TVT",
+    "same-well training TVT copy",
+    "formation surface columns",
+    "contact columns",
+    "neighbor-label spatial surfaces",
+    "dense ANCC imputation",
+    "OOF or learned trajectory predictions"
+  ]
+}

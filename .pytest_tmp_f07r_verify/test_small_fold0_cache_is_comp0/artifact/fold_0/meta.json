@@ -1,0 +1,29 @@
+{
+  "cache_path": "H:\\kaggle\\716\\.pytest_tmp_f07r_verify\\test_small_fold0_cache_is_comp0\\artifact\\fold_0\\neighbor_feature_cache.parquet",
+  "cache_sha256": "9e4bfa7b8c87138dec729846d801b6015dce2bf00752f01d1602342c1dac7be4",
+  "completed": true,
+  "created_at": "2026-07-17T08:52:11.720943+00:00",
+  "experiment_id": "F07R_neighbor_cache_v1",
+  "family_fingerprint": "ae2508b046e7d22f5a76fc00e2ea92df76dcc0ce206f09541788af215d427403",
+  "feature_columns": [
+    "neighbor_relative_u_prior",
+    "neighbor_relative_slope",
+    "neighbor_curvature",
+    "neighbor_mad",
+    "nearest_trajectory_distance",
+    "azimuth_difference",
+    "parallel_overlap_length",
+    "support_well_count",
+    "support_effective_weight",
+    "neighbor_disagreement"
+  ],
+  "feature_count": 10,
+  "keys_unique": true,
+  "outer_fold": 0,
+  "rows": 300,
+  "same_pad_excluded": true,
+  "same_well_excluded": true,
+  "source_fold_excluded": 0,
+  "source_set_fingerprint": "3191a5287e57bd4cca0d1f7fd3c6c3dbed53341fa1655178595e3fc2e00c3e4e",
+  "wells": 5
+}

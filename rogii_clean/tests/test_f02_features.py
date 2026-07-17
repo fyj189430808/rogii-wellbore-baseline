@@ -19,6 +19,11 @@ from src.f02_features import (
     build_f02_lgbm_rows,
     calculate_visible_block_slopes,
 )
+from src.f02a_features import (
+    ALL_F02A_FEATURE_COLUMNS,
+    F02A_FEATURE_COLUMNS,
+    build_f02a_lgbm_rows,
+)
 
 
 def make_piecewise_u_well() -> pd.DataFrame:
@@ -116,3 +121,18 @@ def test_hidden_tvt_does_not_change_f02_features() -> None:
         check_exact=True,
     )
 
+
+def test_f02a_only_adds_500ft_block_slope_std() -> None:
+    """F02a 应在 F01b 上只增加一个 500 ft 分块斜率标准差。"""
+
+    rows = build_f02a_lgbm_rows(make_piecewise_u_well(), "piecewise", 0)
+
+    assert F02A_FEATURE_COLUMNS == ["u_block_slope_std_500"]
+    assert ALL_F02A_FEATURE_COLUMNS == (
+        ALL_F01B_FEATURE_COLUMNS + ["u_block_slope_std_500"]
+    )
+    assert len(ALL_F02A_FEATURE_COLUMNS) == 20
+    np.testing.assert_allclose(rows["u_block_slope_std_500"], np.sqrt(2.5))
+
+    removed_f02_features = set(F02_FEATURE_COLUMNS) - {"u_block_slope_std_500"}
+    assert removed_f02_features.isdisjoint(rows.columns)

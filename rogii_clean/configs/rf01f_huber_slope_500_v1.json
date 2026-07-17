@@ -1,0 +1,29 @@
+{
+  "experiment_id": "RF01f_huber_slope_500_v1",
+  "feature_version": "rf01_huber_slope_500_13_v1",
+  "feature_columns": [
+    "last_visible_tvt",
+    "md_since_visible_end",
+    "hidden_fraction",
+    "x_current",
+    "y_current",
+    "z_current",
+    "dx_from_visible_end",
+    "dy_from_visible_end",
+    "dz_from_visible_end",
+    "dxy_from_visible_end",
+    "gr_raw",
+    "gr_missing",
+    "u_huber_slope_500"
+  ],
+  "allow_nan_features": [
+    "u_huber_slope_500"
+  ],
+  "model_config": "configs/lgbm_feature_baseline_v1.json",
+  "fold_registry": "artifacts/folds/spatial_pad_1000_v1.csv",
+  "fold_registry_sha256": "0c217c417c6f62a2105c4056e92a23dfbaefa8b1d1fa8f5a11c13637b9cd99ab",
+  "expected_wells": 773,
+  "expected_rows": 3783989,
+  "target": "target_delta",
+  "final_prediction": "last_visible_tvt_plus_predicted_delta"
+}

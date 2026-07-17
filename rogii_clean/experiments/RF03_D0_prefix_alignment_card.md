@@ -1,0 +1,26 @@
+# RF03-D0 实验卡：可见前缀 typewell 对齐正对照
+
+- 实验编号和阶段：`RF03_D0_prefix_alignment_v1`，RF03-D0 诊断正对照。
+- 实验名称：真实 TVT_input 与 ±10/20 ft 错位的 GR 对齐判别
+- 唯一假设：在可见前缀中，typewell 在真实 TVT_input 位置的 GR 形态应优于固定错位。
+- 为什么值得验证：若连已知 TVT 上都无法识别正确位置，围绕 PF 隐藏路径构造复杂多尺度得分没有依据。
+- 比较基线：`baseline_id = B00_simple_lgbm_v1 = B0`；不建立或替换其他基线。
+- 与固定基线唯一不同之处：本实验只做合法诊断，不训练模型，不修改 B0、LightGBM runner、参数、目标、fold 或评分代码。
+- 合法输入和血缘：只读取每井水平井 `MD/GR/TVT_input` 与同井 Typewell `TVT/GR`；不读取水平井隐藏真值 `TVT`。
+- 预测目标：无；输出 offset 识别分数。
+- 本次使用的模型：无；诊断不训练模型，也不生成 TVT 模型预测。
+- 固定配置：`configs/rf03_d0_prefix_alignment_v1.json`；CLI 只接受 `--config` 与 `--mode smoke|full`。
+- 固定参数：offset `(-20,-10,0,10,20)` ft；scope 为 `all_visible` 和 `tail_1000ft`；共同有效点最低 50；bootstrap 预注册为 2000 次、seed 42（本 Task 不实现 bootstrap）。
+- 固定 fold：`spatial_pad_1000_v1`，SHA-256 `0c217c417c6f62a2105c4056e92a23dfbaefa8b1d1fa8f5a11c13637b9cd99ab`；不拟合跨井模型，正式诊断计划报告全部 773 井及各固定 fold 切片。
+- 固定评价行：`TVT_input.notna()` 中水平井GR有限、且所有offset落在typewell范围内的公共行。
+- 正对照：offset 0 ft。
+- 负对照：offset -20/-10/+10/+20 ft；若正对照通过，再做typewell GR循环平移。
+- oracle 诊断：不使用隐藏 TVT；可见 TVT_input 是测试时合法输入，不是oracle。
+- 成功门槛：raw NCC 或 affine-MAE 至少一个指标，必须在两个 scope（`all_visible`、`tail_1000ft`）各自的 overall 与五个 fold 中都满足 0 ft 最佳率严格 `> 50%`；即同一指标在共 12 组（2 scopes ×〔1 overall + 5 folds〕）中必须全部通过，不得事后挑 scope、fold 或指标组合。
+- 通过后的边界：通过只允许进入循环平移负对照/F03a，不代表 CV 已改善，也不代表任何特征组已晋级。
+- 停止条件：raw NCC 与 affine-MAE 两个指标均未满足上述完整条件，即没有任何一个指标能在两个 scope 的 overall 与五个 fold、共 12 组中让 0 ft 最佳率全部严格 `> 50%`。
+- 预计运行时间：773井约数分钟，不训练。
+- 本 Task 需要生成的文件：冻结配置、运行合同、聚焦单测；不运行三井或 773 井，不创建正式 artifact。
+- 后续正式运行计划生成：offset_scores.csv、per_well_margins.csv、summary.json、conclusion.md，以及 Task 2 冻结的完整诊断产物。
+- 失败后能否否定整个方向：不能。
+- 失败后只能否定哪一种实现：原始未平滑的全局前缀/尾部1000ft NCC与逐offset仿射MAE判别。

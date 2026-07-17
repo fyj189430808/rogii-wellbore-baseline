@@ -1,0 +1,26 @@
+{
+  "experiment_id": "RF03_D0_prefix_alignment_v1",
+  "experiment_type": "diagnostic_only",
+  "baseline_id": "B00_simple_lgbm_v1",
+  "fold_registry": "artifacts/folds/spatial_pad_1000_v1.csv",
+  "fold_registry_sha256": "0c217c417c6f62a2105c4056e92a23dfbaefa8b1d1fa8f5a11c13637b9cd99ab",
+  "expected_wells": 773,
+  "train_dir": "../input/data/raw/train",
+  "smoke_output_dir": "artifacts/_smoke/RF03_D0_prefix_alignment_v1",
+  "full_output_dir": "artifacts/RF03_D0_prefix_alignment_v1",
+  "offsets_ft": [
+    -20.0,
+    -10.0,
+    0.0,
+    10.0,
+    20.0
+  ],
+  "scopes": {
+    "all_visible": null,
+    "tail_1000ft": 1000.0
+  },
+  "minimum_points": 50,
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 42,
+  "hidden_tvt_loaded": false
+}

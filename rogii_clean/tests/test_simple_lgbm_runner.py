@@ -21,6 +21,53 @@ from scripts.run_simple_lgbm_cv import (
 from src.f01b_features import ALL_F01B_FEATURE_COLUMNS, build_f01b_lgbm_rows
 from src.f01c_features import ALL_F01C_FEATURE_COLUMNS, build_f01c_lgbm_rows
 from src.f02_features import ALL_F02_FEATURE_COLUMNS, build_f02_lgbm_rows
+from src.f02a_features import ALL_F02A_FEATURE_COLUMNS, build_f02a_lgbm_rows
+from src.f03_features import ALL_F03_FEATURE_COLUMNS, build_f03_lgbm_rows
+from src.rf01a_features import ALL_RF01A_FEATURE_COLUMNS, build_rf01a_lgbm_rows
+from src.rf01a2_features import ALL_RF01A2_FEATURE_COLUMNS, build_rf01a2_lgbm_rows
+from src.rf01b_features import ALL_RF01B_FEATURE_COLUMNS, build_rf01b_lgbm_rows
+from src.rf01c_std_features import (
+    ALL_RF01C_STD_FEATURE_COLUMNS,
+    build_rf01c_std_lgbm_rows,
+)
+from src.rf01c_ratio_features import (
+    ALL_RF01C_RATIO_FEATURE_COLUMNS,
+    build_rf01c_ratio_lgbm_rows,
+)
+from src.rf01c_curvature_features import (
+    ALL_RF01C_CURVATURE_FEATURE_COLUMNS,
+    build_rf01c_curvature_lgbm_rows,
+)
+from src.rf01d_projection_features import (
+    ALL_RF01D_FEATURE_COLUMNS,
+    build_rf01d_lgbm_rows,
+)
+from src.rf01e_slope_subset_features import (
+    ALL_RF01E_FEATURE_COLUMNS,
+    ALL_RF01F_FEATURE_COLUMNS,
+    build_rf01e_lgbm_rows,
+    build_rf01f_lgbm_rows,
+)
+from src.rf02a_gr_missing_features import (
+    ALL_RF02A_FEATURE_COLUMNS,
+    build_rf02a_lgbm_rows,
+)
+from src.rf02a_mask_shift_control_features import (
+    ALL_RF02A_CONTROL_FEATURE_COLUMNS,
+    build_rf02a_mask_shift_control_rows,
+)
+from src.rf02a_ablation_features import (
+    ALL_RF02A_LOCAL_FEATURE_COLUMNS,
+    ALL_RF02A_WELL_FEATURE_COLUMNS,
+    build_rf02a_local_null_rows,
+    build_rf02a_local_rows,
+    build_rf02a_well_null_rows,
+    build_rf02a_well_rows,
+)
+from src.rf02b_local_gr_quality_features import (
+    ALL_RF02B_FEATURE_COLUMNS,
+    build_rf02b_lgbm_rows,
+)
 
 
 def test_fold_indices_separates_train_and_validation() -> None:
@@ -76,6 +123,199 @@ def test_select_feature_definition_returns_f02_stability_features() -> None:
 
     assert feature_columns == ALL_F02_FEATURE_COLUMNS
     assert row_builder is build_f02_lgbm_rows
+
+
+def test_select_feature_definition_returns_f02a_single_std_feature() -> None:
+    """F02a 配置必须显式选择二十列特征及对应构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "prefix_u_std500_20_v1"}
+    )
+
+    assert feature_columns == ALL_F02A_FEATURE_COLUMNS
+    assert row_builder is build_f02a_lgbm_rows
+
+
+def test_select_feature_definition_returns_f03_xy_slope_features() -> None:
+    """F03 配置必须显式选择十九列特征及对应构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "prefix_u_xy_slope_19_v1"}
+    )
+
+    assert feature_columns == ALL_F03_FEATURE_COLUMNS
+    assert row_builder is build_f03_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01a_huber_slopes() -> None:
+    """RF01a 配置必须显式选择十七列及五窗口 Huber 构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_huber_slopes_17_v1"}
+    )
+
+    assert feature_columns == ALL_RF01A_FEATURE_COLUMNS
+    assert row_builder is build_rf01a_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01a2_hybrid_slopes() -> None:
+    """RF01a2 配置必须选择十七列及预注册的混合倾角构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_hybrid_slopes_17_v1"}
+    )
+
+    assert feature_columns == ALL_RF01A2_FEATURE_COLUMNS
+    assert row_builder is build_rf01a2_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01b_slope_differences() -> None:
+    """RF01b 配置必须选择二十一列及相邻尺度坡差构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_huber_slope_differences_21_v1"}
+    )
+
+    assert feature_columns == ALL_RF01B_FEATURE_COLUMNS
+    assert row_builder is build_rf01b_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01c_slope_std() -> None:
+    """RF01c1 配置必须选择二十二列及相邻坡度标准差构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_huber_plus_adjacent_std_22_v1"}
+    )
+
+    assert feature_columns == ALL_RF01C_STD_FEATURE_COLUMNS
+    assert row_builder is build_rf01c_std_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01c_positive_ratio() -> None:
+    """RF01c2 配置必须选择二十二列及正坡比例构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_huber_plus_positive_ratio_22_v1"}
+    )
+
+    assert feature_columns == ALL_RF01C_RATIO_FEATURE_COLUMNS
+    assert row_builder is build_rf01c_ratio_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01c_curvature() -> None:
+    """RF01c3 配置必须选择二十二列及 robust curvature 构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_huber_plus_curvature_22_v1"}
+    )
+
+    assert feature_columns == ALL_RF01C_CURVATURE_FEATURE_COLUMNS
+    assert row_builder is build_rf01c_curvature_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01d_projection() -> None:
+    """RF01d 配置必须选择二十二列及逐行 U 投影增量构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_huber_plus_projection_22_v1"}
+    )
+
+    assert feature_columns == ALL_RF01D_FEATURE_COLUMNS
+    assert row_builder is build_rf01d_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01e_three_slopes() -> None:
+    """RF01e 配置必须选择 B00 加 50/500/1000 ft 三个倾角。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_huber_slopes_50_500_1000_15_v1"}
+    )
+
+    assert feature_columns == ALL_RF01E_FEATURE_COLUMNS
+    assert row_builder is build_rf01e_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf01f_single_500_slope() -> None:
+    """RF01f 配置必须选择 B00 加单个 500 ft Huber 倾角。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf01_huber_slope_500_13_v1"}
+    )
+
+    assert feature_columns == ALL_RF01F_FEATURE_COLUMNS
+    assert row_builder is build_rf01f_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf02a_gr_missing_geometry() -> None:
+    """RF02a 配置必须选择 B00 加九个原始 GR 缺失几何特征。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf02_gr_missing_geometry_21_v1"}
+    )
+
+    assert feature_columns == ALL_RF02A_FEATURE_COLUMNS
+    assert row_builder is build_rf02a_lgbm_rows
+
+
+def test_select_feature_definition_returns_rf02a_mask_shift_control() -> None:
+    """RF02a-null 必须选择与真实版同维的错误位置 mask 构造函数。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf02_gr_missing_mask_shift_control_21_v1"}
+    )
+
+    assert feature_columns == ALL_RF02A_CONTROL_FEATURE_COLUMNS
+    assert row_builder is build_rf02a_mask_shift_control_rows
+
+
+def test_select_feature_definition_returns_rf02a_well_only() -> None:
+    """RF02a-well 必须只选择 B00 加两个真实井级缺失统计。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf02_gr_missing_well_only_14_v1"}
+    )
+    assert feature_columns == ALL_RF02A_WELL_FEATURE_COLUMNS
+    assert row_builder is build_rf02a_well_rows
+
+
+def test_select_feature_definition_returns_rf02a_well_null() -> None:
+    """RF02a-well-null 必须选择同维的平移 mask 井级统计。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf02_gr_missing_well_null_14_v1"}
+    )
+    assert feature_columns == ALL_RF02A_WELL_FEATURE_COLUMNS
+    assert row_builder is build_rf02a_well_null_rows
+
+
+def test_select_feature_definition_returns_rf02a_centered_local() -> None:
+    """RF02a-local 必须只选择 B00 加三个中心化局部有效率。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf02_gr_missing_centered_local_15_v1"}
+    )
+    assert feature_columns == ALL_RF02A_LOCAL_FEATURE_COLUMNS
+    assert row_builder is build_rf02a_local_rows
+
+
+def test_select_feature_definition_returns_rf02a_centered_local_null() -> None:
+    """RF02a-local-null 必须选择同维的平移 mask 中心化局部有效率。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf02_gr_missing_centered_local_null_15_v1"}
+    )
+    assert feature_columns == ALL_RF02A_LOCAL_FEATURE_COLUMNS
+    assert row_builder is build_rf02a_local_null_rows
+
+
+def test_select_feature_definition_returns_rf02b_local_gr_quality() -> None:
+    """RF02b 配置必须选择 B00 加六个局部 GR MAD/方差特征。"""
+
+    feature_columns, row_builder = select_feature_definition(
+        {"feature_version": "rf02_local_gr_quality_18_v1"}
+    )
+    assert feature_columns == ALL_RF02B_FEATURE_COLUMNS
+    assert row_builder is build_rf02b_lgbm_rows
 
 
 def make_minimal_validation_tables(gated_values: list[float]) -> tuple[pd.DataFrame, pd.DataFrame]:

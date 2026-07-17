@@ -1,0 +1,26 @@
+{
+  "baseline_id": "B00_simple_lgbm_v1",
+  "baseline_micro_rmse": 16.05377201961013,
+  "best_candidate": "F05a_direct_physical_candidates_v2",
+  "best_candidate_micro_rmse": 12.864130895916313,
+  "best_candidate_improvement_vs_b00": 3.189641123693817,
+  "best_reproducible_candidate": "F05a_deterministic_candidates_v1",
+  "best_reproducible_micro_rmse": 12.930691493610633,
+  "best_reproducible_bootstrap_ci95_vs_b00": [-3.8748270344, -2.3997859411],
+  "best_reproducible_all_20_slices_improve": true,
+  "latest_experiment": "N06_f05a_plus_geometry_offset_landscape_v1",
+  "latest_status": "stopped_after_fold0_reverse",
+  "latest_fold_rmse": [
+    11.795127686759207
+  ],
+  "bootstrap_ci95_vs_b00": [-4.001559824843459, -2.4109522456846606],
+  "conditional_stage": {
+    "C01": "equivalent_to_F05a_deterministic_candidates_v1",
+    "C02": "N02_f05a_plus_gr_gap_geometry_v1_stopped_after_fold1_reverse_stability_override",
+    "C01_plus_F05b": "N03_f05a_plus_pf_internal_stats_v1_full_cv_failed_vs_c01",
+    "C01_plus_F03b": "N06_f05a_plus_geometry_offset_landscape_v1_stopped_after_fold0_reverse"
+  },
+  "next_experiment": "C01_plus_F04_conditional_pending",
+  "current_blocker": "C01 + F03b 在 fold 0 比 C01 反向 0.086176 ft。",
+  "roadmap_version": "feature_roadmap_v2"
+}

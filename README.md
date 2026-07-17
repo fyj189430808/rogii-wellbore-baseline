@@ -168,6 +168,7 @@ Notebook 内的旧输出没有被伪装成新结果。重新运行之前，不�
 - [完整数据流](docs/02_pf_data_flow.md)
 - [PF 算法](docs/03_pf_algorithm.md)
 - [固定 CV 与指标](docs/07_validation_and_metrics.md)
+- [全部实验复盘与突破口地图](docs/08_all_experiments_and_breakthroughs.md)
 
 ## 研究纪律
 
