@@ -1,0 +1,62 @@
+{
+  "experiment_id": "P2_P02_multiscale_pf_paths_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "fold_registry_sha256": "a70bc21e8b91a0ba93e9c94954868adbe00fdd097ea21f7def6dcb749f7a241c",
+  "baseline_experiment_id": "P2_P01_multiseed_pf_mean_v1",
+  "baseline_micro_rmse": 10.93453719961266,
+  "baseline_fold_rmse": [
+    10.823838214365503,
+    10.21216180740936,
+    9.93405725110749,
+    11.824856770444416,
+    11.741138844575953
+  ],
+  "baseline_predictions": "artifacts/P2_P01_multiseed_pf_mean_v1/model_cv/predictions.parquet",
+  "baseline_predictions_sha256": "5d7e5341aa63641c51a8b9f003857036c5086628a8ad46f56d3a070a7ec48d96",
+  "baseline_comparison": "artifacts/P2_P01_multiseed_pf_mean_v1/model_cv/comparison_vs_p2b00_full5.json",
+  "baseline_comparison_sha256": "6a55ec0bf0a4a7354719391597f3d53bc571e37824ca90c9f3347016582755ea",
+  "baseline_feature_list": "artifacts/P2_P01_multiseed_pf_mean_v1/model_cv/feature_list.json",
+  "baseline_feature_list_sha256": "0191966ffac4fdc47b667a159390b7fd403782b3d72b62a9a5278aa0ede8d297",
+  "p01_generator_config": "artifacts/P2_P01_multiseed_pf_mean_v1/config.json",
+  "p01_generator_config_sha256": "041c7e5ac3c40ee683c13d59821dcfe4a675c9632e3c55b609f93dcf9fb4e909",
+  "p01_program_controls": "artifacts/P2_P01_multiseed_pf_mean_v1/program_controls_smoke.json",
+  "p01_program_controls_sha256": "f238ced8fd7a38a577a9712d55433ef8ff1f23be11bfd663016a32ca4dd02dca",
+  "p01_legal_cache_dir": "artifacts/P2_P01_multiseed_pf_mean_v1/legal_cache",
+  "p01_generator_fingerprint": "ac1dbefd59923585671156b7d3e8b4fc7faca95c20f5f1ae6fdab92a8665954a",
+  "model_config": "configs/lgbm_feature_baseline_v1.json",
+  "model_config_sha256": "02f6c4cb737132641c2dbbb6076d0e248371786559f2cd6f8581ce72146cb838",
+  "base_feature_cache": "artifacts/B00_simple_lgbm_v1/feature_cache.parquet",
+  "base_feature_cache_sha256": "8801493752e03f40a3957843e8efa25c091d04244dd341c64c9329b50d5de625",
+  "candidate_feature_cache": "artifacts/F05a_deterministic_candidate_cache_v1/candidate_feature_cache.parquet",
+  "candidate_feature_cache_sha256": "66b32f8ed790ea53184d43bc02d6899031348deec418d7933366bbef64105076",
+  "candidate_cache_metadata": "artifacts/F05a_deterministic_candidate_cache_v1/meta.json",
+  "baseline_feature_count": 37,
+  "new_feature_names": [
+    "pf128_scale_3_delta",
+    "pf128_scale_5_delta",
+    "pf128_scale_8_delta",
+    "pf128_scale_12_delta"
+  ],
+  "formal_feature_count": 41,
+  "diagnostic_columns_excluded_from_model": [
+    "pf128_seed0_delta",
+    "pf128_seed_std"
+  ],
+  "expected_wells": 773,
+  "expected_hidden_rows": 3783989,
+  "model_success_conditions": {
+    "minimum_folds01_combined_improvement_ft": 0.2,
+    "maximum_single_fold_degradation_ft": 0.25,
+    "minimum_full5_improvement_ft": 0.1,
+    "minimum_improved_folds": 4,
+    "maximum_bootstrap_ci_upper": 0.0,
+    "maximum_p90_degradation_ft": 0.5
+  },
+  "negative_control": {
+    "name": "reverse_each_new_scale_path_within_well",
+    "run_if_folds01_pass": true,
+    "fold": 0
+  },
+  "selection_disclosure": "Hypothesis registered after inspecting P2-P01 five-fold path diagnostics; all four pre-existing scales enter together and no single scale is selected."
+}

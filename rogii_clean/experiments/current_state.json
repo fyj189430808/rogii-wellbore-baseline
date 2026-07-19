@@ -1,26 +1,70 @@
 {
-  "baseline_id": "B00_simple_lgbm_v1",
-  "baseline_micro_rmse": 16.05377201961013,
-  "best_candidate": "F05a_direct_physical_candidates_v2",
-  "best_candidate_micro_rmse": 12.864130895916313,
-  "best_candidate_improvement_vs_b00": 3.189641123693817,
-  "best_reproducible_candidate": "F05a_deterministic_candidates_v1",
-  "best_reproducible_micro_rmse": 12.930691493610633,
-  "best_reproducible_bootstrap_ci95_vs_b00": [-3.8748270344, -2.3997859411],
-  "best_reproducible_all_20_slices_improve": true,
-  "latest_experiment": "N06_f05a_plus_geometry_offset_landscape_v1",
-  "latest_status": "stopped_after_fold0_reverse",
-  "latest_fold_rmse": [
-    11.795127686759207
-  ],
-  "bootstrap_ci95_vs_b00": [-4.001559824843459, -2.4109522456846606],
-  "conditional_stage": {
-    "C01": "equivalent_to_F05a_deterministic_candidates_v1",
-    "C02": "N02_f05a_plus_gr_gap_geometry_v1_stopped_after_fold1_reverse_stability_override",
-    "C01_plus_F05b": "N03_f05a_plus_pf_internal_stats_v1_full_cv_failed_vs_c01",
-    "C01_plus_F03b": "N06_f05a_plus_geometry_offset_landscape_v1_stopped_after_fold0_reverse"
+  "phase": 2,
+  "phase2_objective": "固定按井五折和单模 LightGBM，只通过合法数据特征降低 CV",
+  "main_cv": {
+    "fold_version": "balanced_well_5fold_v1",
+    "validation_unit": "complete_well",
+    "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+    "fold_registry_sha256": "a70bc21e8b91a0ba93e9c94954868adbe00fdd097ea21f7def6dcb749f7a241c",
+    "wells": 773,
+    "evaluation_rows": 3783989
   },
-  "next_experiment": "C01_plus_F04_conditional_pending",
-  "current_blocker": "C01 + F03b 在 fold 0 比 C01 反向 0.086176 ft。",
-  "roadmap_version": "feature_roadmap_v2"
+  "phase2_baseline_id": "P2_CV00_group5_c01_v1",
+  "phase2_baseline_alias": "P2B00",
+  "phase2_baseline_micro_rmse": 12.539227823724785,
+  "phase2_baseline_fold_rmse": [
+    12.718488010792482,
+    11.709880679322422,
+    11.733809981477483,
+    13.605978440123042,
+    12.823630683320834
+  ],
+  "phase2_baseline_carry_micro_rmse": 15.909852870734554,
+  "phase2_baseline_improvement_vs_carry": 3.370625047009769,
+  "phase2_baseline_bootstrap_ci95_vs_carry": [
+    -4.046459727102272,
+    -2.7325886792377654
+  ],
+  "phase2_current_best_id": "P2_P02_multiscale_pf_paths_v1",
+  "phase2_current_best_micro_rmse": 10.305704992073148,
+  "phase2_current_best_fold_rmse": [
+    10.170796687354473,
+    9.4624641719035,
+    9.181973787681697,
+    10.8754729397572,
+    11.639196676252652
+  ],
+  "phase2_current_best_improvement_vs_p2b00": 2.233522831651637,
+  "phase2_current_best_bootstrap_ci95_vs_p2b00": [
+    -2.8802492038414083,
+    -1.6054656990632505
+  ],
+  "phase2_current_best_parent_id": "P2_P01_multiseed_pf_mean_v1",
+  "phase2_current_best_improvement_vs_parent": 0.6288322075395119,
+  "phase2_current_best_bootstrap_ci95_vs_parent": [
+    -1.0300093131388148,
+    -0.24366895883289502
+  ],
+  "latest_experiment": "P2_P03_pf_seed_dispersion_v1",
+  "latest_status": "complete_folds01_stop_below_preregistered_gate",
+  "latest_artifact_dir": "artifacts/P2_P03_pf_seed_dispersion_v1",
+  "latest_folds01_micro_rmse": 9.804669909624822,
+  "latest_folds01_baseline_micro_rmse": 9.82327146996201,
+  "latest_folds01_improvement_ft": 0.018601560337188516,
+  "latest_folds01_bootstrap_ci95_vs_baseline": [
+    -0.13610948597918976,
+    0.10390625514207955
+  ],
+  "next_experiment": null,
+  "phase2_registered_route_status": "complete_all_registered_experiments_finished_or_preregistered_stop",
+  "phase2_registered_route_completed_on": "2026-07-19",
+  "remaining_registered_experiments": [],
+  "current_blocker": null,
+  "phase1_history": {
+    "fold_version": "spatial_pad_1000_v1",
+    "best_reproducible_id": "F05a_deterministic_candidates_v1",
+    "best_reproducible_micro_rmse": 12.930691493610633,
+    "comparison_warning": "旧协议成绩只保留为历史记录，不能与二阶段按井五折直接判定提升"
+  },
+  "roadmap_version": "phase2_evidence_first_v1"
 }

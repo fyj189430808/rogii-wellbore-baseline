@@ -1,0 +1,49 @@
+{
+  "config_version": "balanced_well_5fold_v1",
+  "fold_summary": [
+    {
+      "fold": 0,
+      "groups": 155,
+      "hidden_row_fraction": 0.20024846795273454,
+      "hidden_rows": 757738,
+      "wells": 155
+    },
+    {
+      "fold": 1,
+      "groups": 155,
+      "hidden_row_fraction": 0.19996094068983816,
+      "hidden_rows": 756650,
+      "wells": 155
+    },
+    {
+      "fold": 2,
+      "groups": 154,
+      "hidden_row_fraction": 0.19985655349420942,
+      "hidden_rows": 756255,
+      "wells": 154
+    },
+    {
+      "fold": 3,
+      "groups": 155,
+      "hidden_row_fraction": 0.20008012708282186,
+      "hidden_rows": 757101,
+      "wells": 155
+    },
+    {
+      "fold": 4,
+      "groups": 154,
+      "hidden_row_fraction": 0.19985391078039602,
+      "hidden_rows": 756245,
+      "wells": 154
+    }
+  ],
+  "grouping": "none",
+  "groups": 773,
+  "hidden_rows": 3783989,
+  "n_splits": 5,
+  "pad_id_semantics": "well_id_compatibility_alias",
+  "registry_sha256": "a70bc21e8b91a0ba93e9c94954868adbe00fdd097ea21f7def6dcb749f7a241c",
+  "train_dir": "H:\\kaggle\\716\\input\\data\\raw\\train",
+  "validation_unit": "complete_well",
+  "wells": 773
+}

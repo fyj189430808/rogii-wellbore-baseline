@@ -1,0 +1,61 @@
+{
+  "experiment_id": "P2_P03_pf_seed_dispersion_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "fold_registry_sha256": "a70bc21e8b91a0ba93e9c94954868adbe00fdd097ea21f7def6dcb749f7a241c",
+  "baseline_experiment_id": "P2_P02_multiscale_pf_paths_v1",
+  "baseline_micro_rmse": 10.305704992073148,
+  "baseline_fold_rmse": [
+    10.170796687354473,
+    9.4624641719035,
+    9.181973787681697,
+    10.8754729397572,
+    11.639196676252652
+  ],
+  "baseline_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "baseline_predictions_sha256": "8109514eb125f8beda2559f39e1d9f54396d41fd38fa76114423c8dd6bca4d37",
+  "baseline_comparison": "artifacts/P2_P02_multiscale_pf_paths_v1/comparison_vs_p01_full5.json",
+  "baseline_comparison_sha256": "22425927c695083e873c47382f604ee6cdbbe8e1056e3c4c4eb8912ae92c8aab",
+  "baseline_feature_list": "artifacts/P2_P02_multiscale_pf_paths_v1/feature_list.json",
+  "baseline_feature_list_sha256": "2bf5992b45fe95e6ae38862da2408b306c0303806291d112ff8fa1ecf4b00172",
+  "baseline_config": "artifacts/P2_P02_multiscale_pf_paths_v1/config.json",
+  "baseline_config_sha256": "979e8c713b1a20a7b6c540a632ab126baa87d8b207a495d16fe5f165615615ba",
+  "p01_generator_config": "artifacts/P2_P01_multiseed_pf_mean_v1/config.json",
+  "p01_generator_config_sha256": "041c7e5ac3c40ee683c13d59821dcfe4a675c9632e3c55b609f93dcf9fb4e909",
+  "p01_program_controls": "artifacts/P2_P01_multiseed_pf_mean_v1/program_controls_smoke.json",
+  "p01_program_controls_sha256": "f238ced8fd7a38a577a9712d55433ef8ff1f23be11bfd663016a32ca4dd02dca",
+  "p01_legal_cache_dir": "artifacts/P2_P01_multiseed_pf_mean_v1/legal_cache",
+  "p01_generator_fingerprint": "ac1dbefd59923585671156b7d3e8b4fc7faca95c20f5f1ae6fdab92a8665954a",
+  "model_config": "configs/lgbm_feature_baseline_v1.json",
+  "model_config_sha256": "02f6c4cb737132641c2dbbb6076d0e248371786559f2cd6f8581ce72146cb838",
+  "base_feature_cache": "artifacts/B00_simple_lgbm_v1/feature_cache.parquet",
+  "base_feature_cache_sha256": "8801493752e03f40a3957843e8efa25c091d04244dd341c64c9329b50d5de625",
+  "candidate_feature_cache": "artifacts/F05a_deterministic_candidate_cache_v1/candidate_feature_cache.parquet",
+  "candidate_feature_cache_sha256": "66b32f8ed790ea53184d43bc02d6899031348deec418d7933366bbef64105076",
+  "candidate_cache_metadata": "artifacts/F05a_deterministic_candidate_cache_v1/meta.json",
+  "baseline_feature_count": 41,
+  "new_feature_names": [
+    "pf128_seed_std"
+  ],
+  "formal_feature_count": 42,
+  "diagnostic_columns_excluded_from_model": [
+    "pf128_seed0_delta"
+  ],
+  "expected_wells": 773,
+  "expected_hidden_rows": 3783989,
+  "model_success_conditions": {
+    "minimum_folds01_combined_improvement_ft": 0.2,
+    "maximum_single_fold_degradation_ft": 0.25,
+    "minimum_full5_improvement_ft": 0.1,
+    "minimum_improved_folds": 4,
+    "maximum_bootstrap_ci_upper": 0.0,
+    "maximum_p90_degradation_ft": 0.5
+  },
+  "negative_control": {
+    "name": "reverse_seed_std_within_well",
+    "run_if_folds01_pass": true,
+    "fold": 0,
+    "minimum_formal_gain_vs_reversed_ft": 0.05
+  },
+  "selection_disclosure": "Hypothesis registered after inspecting P2-P01 and P2-P02 five-fold results; only the pre-existing row-wise 128-seed standard deviation is added."
+}

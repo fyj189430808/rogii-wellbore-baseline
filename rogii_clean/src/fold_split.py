@@ -233,6 +233,52 @@ def add_balanced_fold_ids(pad_df: pd.DataFrame, n_splits: int) -> pd.DataFrame:
     return output_df.sort_values("well_id").reset_index(drop=True)
 
 
+# 把每口完整井当成一个独立分组，再复用已经冻结的确定性平衡算法。
+def add_balanced_well_fold_ids(
+    well_summary_df: pd.DataFrame,
+    n_splits: int = 5,
+) -> pd.DataFrame:
+    """输入一井一行的统计表，输出按隐藏评价行数平衡的完整井 fold。"""
+
+    # 折数至少为二，否则无法形成训练集和验证集。
+    if int(n_splits) < 2:
+        raise ValueError("n_splits 必须至少为 2")
+
+    # 按井验证要求输入严格保持一井一行。
+    if well_summary_df["well_id"].astype(str).duplicated().any():
+        raise ValueError("按井分折输入存在重复 well_id")
+
+    # fold 数不能超过井数，否则至少会出现一个空验证折。
+    if int(n_splits) > len(well_summary_df):
+        raise ValueError("n_splits 不能超过井数")
+
+    # 复制输入，保证调用者持有的井级统计表不会被函数修改。
+    well_group_df = well_summary_df.copy()
+
+    # 下游旧接口仍读取 pad_id；这里明确令它等于 well_id，仅表示独立井分组。
+    well_group_df["pad_id"] = well_group_df["well_id"].astype(str)
+
+    # 复用一阶段已经验证过的贪心平衡逻辑，不引入新的随机分折实现。
+    return add_balanced_fold_ids(well_group_df, n_splits=int(n_splits))
+
+
+# 从原始训练目录直接建立二阶段按井五折注册表。
+def build_balanced_well_fold_registry(
+    train_dir: Path,
+    n_splits: int = 5,
+) -> pd.DataFrame:
+    """读取全部训练井，返回一口完整井只属于一个 fold 的注册表。"""
+
+    # 只读取每口井的代表坐标、可见行数和隐藏评价行数。
+    well_summary_df = build_well_summary_table(train_dir)
+
+    # 一口井就是一个不可拆分分组，并按隐藏评价行数确定性平衡。
+    return add_balanced_well_fold_ids(
+        well_summary_df,
+        n_splits=int(n_splits),
+    )
+
+
 # 对外提供一个简单入口，按固定顺序完成读取、pad 和 fold。
 def build_fixed_fold_registry(
     train_dir: Path,
