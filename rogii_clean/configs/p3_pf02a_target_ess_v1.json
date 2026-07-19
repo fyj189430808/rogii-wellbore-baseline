@@ -1,0 +1,20 @@
+{
+  "experiment_id": "P3_PF02a_target_ess_v1",
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "source_d01_per_well": "artifacts/P3_D01_pf_observation_weight_audit_v1/per_well.csv",
+  "source_pf_legal_cache_dir": "artifacts/P2_P01_multiseed_pf_mean_v1/legal_cache",
+  "source_pf_artifact_fingerprint": "ac1dbefd59923585671156b7d3e8b4fc7faca95c20f5f1ae6fdab92a8665954a",
+  "source_model_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "artifact_dir": "artifacts/P3_PF02a_target_ess_v1",
+  "number_of_seeds": 128,
+  "target_ess": 96.0,
+  "candidate_scales": [3.0, 5.0, 8.0, 12.0],
+  "development_wells": 657,
+  "development_hidden_rows": 3211872,
+  "workers": 8,
+  "fold01_minimum_improvement_ft": 0.2,
+  "fold01_max_single_fold_degradation_ft": 0.1,
+  "shadow_target_access": false,
+  "model_training": false
+}

@@ -1,0 +1,39 @@
+{
+  "experiment_id": "P3_D00_residual_structure_v1",
+  "experiment_type": "read_only_oracle_diagnostic",
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "source_experiment_id": "P2_P02_multiscale_pf_paths_v1",
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "source_metrics": "artifacts/P2_P02_multiscale_pf_paths_v1/metrics.json",
+  "shadow_holdout": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "fold_version": "balanced_well_5fold_v1",
+  "expected_total_wells": 773,
+  "expected_total_rows": 3783989,
+  "expected_shadow_wells": 116,
+  "expected_development_wells": 657,
+  "residual_definition": "target_tvt_minus_p2p02_oof_pred_tvt",
+  "progress_coordinate": "hidden_md_normalized_zero_to_one",
+  "representations": [
+    "baseline",
+    "constant_unanchored",
+    "linear_unanchored",
+    "linear_anchored",
+    "quadratic_unanchored",
+    "quadratic_anchored",
+    "cubic_unanchored",
+    "cubic_anchored",
+    "control4_unanchored",
+    "control4_anchored",
+    "control8_unanchored",
+    "control8_anchored"
+  ],
+  "high_frequency_definition": "control8_unanchored_remaining_residual",
+  "decision_thresholds": {
+    "linear_oracle_priority_below_ft": 7.0,
+    "quadratic_or_cubic_priority_below_ft": 6.0,
+    "control8_branch_selection_above_ft": 8.0
+  },
+  "formal_feature_output": false,
+  "model_training": false,
+  "shadow_target_access": false
+}

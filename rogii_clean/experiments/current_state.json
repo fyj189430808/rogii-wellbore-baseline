@@ -1,6 +1,6 @@
 {
-  "phase": 2,
-  "phase2_objective": "固定按井五折和单模 LightGBM，只通过合法数据特征降低 CV",
+  "phase": 3,
+  "phase3_objective": "固定单模 LightGBM、按井五折和自然隐藏评价区，优先突破 PF 整段路径、动态可靠性与严格 OOF 低维残差表示",
   "main_cv": {
     "fold_version": "balanced_well_5fold_v1",
     "validation_unit": "complete_well",
@@ -9,62 +9,112 @@
     "wells": 773,
     "evaluation_rows": 3783989
   },
-  "phase2_baseline_id": "P2_CV00_group5_c01_v1",
-  "phase2_baseline_alias": "P2B00",
-  "phase2_baseline_micro_rmse": 12.539227823724785,
-  "phase2_baseline_fold_rmse": [
-    12.718488010792482,
-    11.709880679322422,
-    11.733809981477483,
-    13.605978440123042,
-    12.823630683320834
-  ],
-  "phase2_baseline_carry_micro_rmse": 15.909852870734554,
-  "phase2_baseline_improvement_vs_carry": 3.370625047009769,
-  "phase2_baseline_bootstrap_ci95_vs_carry": [
-    -4.046459727102272,
-    -2.7325886792377654
-  ],
-  "phase2_current_best_id": "P2_P02_multiscale_pf_paths_v1",
-  "phase2_current_best_micro_rmse": 10.305704992073148,
-  "phase2_current_best_fold_rmse": [
-    10.170796687354473,
-    9.4624641719035,
-    9.181973787681697,
-    10.8754729397572,
-    11.639196676252652
-  ],
-  "phase2_current_best_improvement_vs_p2b00": 2.233522831651637,
-  "phase2_current_best_bootstrap_ci95_vs_p2b00": [
-    -2.8802492038414083,
-    -1.6054656990632505
-  ],
-  "phase2_current_best_parent_id": "P2_P01_multiseed_pf_mean_v1",
-  "phase2_current_best_improvement_vs_parent": 0.6288322075395119,
-  "phase2_current_best_bootstrap_ci95_vs_parent": [
-    -1.0300093131388148,
-    -0.24366895883289502
-  ],
-  "latest_experiment": "P2_P03_pf_seed_dispersion_v1",
-  "latest_status": "complete_folds01_stop_below_preregistered_gate",
-  "latest_artifact_dir": "artifacts/P2_P03_pf_seed_dispersion_v1",
-  "latest_folds01_micro_rmse": 9.804669909624822,
-  "latest_folds01_baseline_micro_rmse": 9.82327146996201,
-  "latest_folds01_improvement_ft": 0.018601560337188516,
-  "latest_folds01_bootstrap_ci95_vs_baseline": [
-    -0.13610948597918976,
-    0.10390625514207955
-  ],
-  "next_experiment": null,
-  "phase2_registered_route_status": "complete_all_registered_experiments_finished_or_preregistered_stop",
-  "phase2_registered_route_completed_on": "2026-07-19",
-  "remaining_registered_experiments": [],
+  "phase3_baseline": {
+    "experiment_id": "P3B00_group5_p2p02_v1",
+    "source_experiment_id": "P2_P02_multiscale_pf_paths_v1",
+    "model": "single_lightgbm_1734_trees_seed29",
+    "features": 41,
+    "micro_rmse": 10.305704992073148,
+    "fold_rmse": [
+      10.170796687354473,
+      9.4624641719035,
+      9.181973787681697,
+      10.8754729397572,
+      11.639196676252652
+    ],
+    "artifact_dir": "artifacts/P3B00_group5_p2p02_v1"
+  },
+  "shadow_holdout": {
+    "version": "P3_shadow_holdout_v1",
+    "status": "frozen_unopened",
+    "selection_method": "label_free_fold_balanced_representative_selection",
+    "wells": 116,
+    "fold_counts": {
+      "0": 24,
+      "1": 23,
+      "2": 23,
+      "3": 23,
+      "4": 23
+    },
+    "development_wells": 657,
+    "target_or_error_accessed": false,
+    "artifact_dir": "artifacts/P3_shadow_holdout_v1"
+  },
+  "p3_d00": {
+    "experiment_id": "P3_D00_residual_structure_v1",
+    "status": "complete_read_only_oracle_diagnostic",
+    "development_wells": 657,
+    "development_rows": 3211872,
+    "shadow_overlap_wells": 0,
+    "baseline_micro_rmse": 10.272146267501086,
+    "oracle_rmse": {
+      "constant_unanchored": 6.675960321903744,
+      "linear_unanchored": 5.034107247476033,
+      "linear_anchored": 5.782501714236476,
+      "quadratic_unanchored": 4.147005996662827,
+      "quadratic_anchored": 4.479488409112839,
+      "cubic_unanchored": 3.5815605900934906,
+      "cubic_anchored": 3.7470143679527745,
+      "control4_unanchored": 3.4494790490638514,
+      "control4_anchored": 3.6577310363779505,
+      "control8_unanchored": 2.3474504117060273,
+      "control8_anchored": 2.40286995067981
+    },
+    "control8_explained_sse_fraction": 0.9477759601489071,
+    "decision": "strict_oof_low_dimensional_residual_coefficients_route_supported",
+    "formal_feature_output": false,
+    "artifact_dir": "artifacts/P3_D00_residual_structure_v1"
+  },
+  "p3_d01": {
+    "experiment_id": "P3_D01_pf_observation_weight_audit_v1",
+    "status": "complete_read_only_diagnostic",
+    "development_wells": 657,
+    "development_rows": 3211872,
+    "shadow_overlap_wells": 0,
+    "p2p02_micro_rmse": 10.272146267501086,
+    "best_fixed_scale": "scale_8",
+    "best_fixed_scale_rmse": 10.76866655674349,
+    "oracle_scale_rmse": 10.252730839083474,
+    "best_fixed_minus_oracle_ft": 0.5159357176600157,
+    "median_sigma_absolute_relative_difference": 1.7048896308593728,
+    "ess_observed_gr_fraction_rho_range": [-0.4592648381515667, -0.45117317814515534],
+    "pf01_supported": true,
+    "pf02_supported": true,
+    "formal_feature_output": false,
+    "artifact_dir": "artifacts/P3_D01_pf_observation_weight_audit_v1"
+  },
+  "p3_pf01a": {
+    "experiment_id": "P3_PF01a_observed_only_sigma_v1",
+    "status": "fold01_gate_failed_stopped",
+    "development_wells_tested": 263,
+    "development_rows_tested": 1282276,
+    "old_best_fixed_path": "scale5",
+    "old_best_fixed_path_rmse": 10.90492098595127,
+    "new_best_fixed_path": "scale12",
+    "new_best_fixed_path_rmse": 12.651863001801788,
+    "best_fixed_cross_improvement_ft": -1.746942015850518,
+    "fold_improvement_ft": [-1.2225581746667924, -2.292492096339844],
+    "fold01_gate_passed": false,
+    "formal_feature_output": false,
+    "model_training": false,
+    "artifact_dir": "artifacts/P3_PF01a_observed_only_sigma_v1"
+  },
+  "latest_experiment": "P3_PF01a_observed_only_sigma_v1",
+  "latest_status": "fold01_gate_failed_stopped",
+  "latest_artifact_dir": "artifacts/P3_PF01a_observed_only_sigma_v1",
+  "next_experiment": "P3_PF02a_target_ess_v1",
   "current_blocker": null,
+  "route_status": "active_shadow_closed_pf02a_next",
+  "roadmap_version": "phase3_path_breakthrough_v1",
+  "phase2_history": {
+    "best_experiment_id": "P2_P02_multiscale_pf_paths_v1",
+    "best_micro_rmse": 10.305704992073148,
+    "status": "frozen_as_phase3_baseline_source"
+  },
   "phase1_history": {
     "fold_version": "spatial_pad_1000_v1",
     "best_reproducible_id": "F05a_deterministic_candidates_v1",
     "best_reproducible_micro_rmse": 12.930691493610633,
-    "comparison_warning": "旧协议成绩只保留为历史记录，不能与二阶段按井五折直接判定提升"
-  },
-  "roadmap_version": "phase2_evidence_first_v1"
+    "comparison_warning": "旧协议成绩只保留为历史记录，不能与按井五折结果直接判断提升"
+  }
 }

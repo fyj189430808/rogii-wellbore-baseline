@@ -1,0 +1,47 @@
+{
+  "experiment_id": "P3_PF03a_five_path_local500_proxy_v1",
+  "experiment_role": "zero_pf_rerun_direction_screen_not_formal_pf03",
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "source_d01_per_well": "artifacts/P3_D01_pf_observation_weight_audit_v1/per_well.csv",
+  "source_pf_legal_cache_dir": "artifacts/P2_P01_multiseed_pf_mean_v1/legal_cache",
+  "source_pf_artifact_fingerprint": "ac1dbefd59923585671156b7d3e8b4fc7faca95c20f5f1ae6fdab92a8665954a",
+  "source_model_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "raw_train_dir": "../input/data/raw/train",
+  "artifact_dir": "artifacts/P3_PF03a_five_path_local500_proxy_v1",
+  "candidate_paths": [
+    "pf128_mean_delta",
+    "pf128_scale_3_delta",
+    "pf128_scale_5_delta",
+    "pf128_scale_8_delta",
+    "pf128_scale_12_delta"
+  ],
+  "segment_length_ft": 500.0,
+  "window_variants": {
+    "250": {
+      "experiment_id": "P3_PF03a_five_path_local250_proxy_v1",
+      "artifact_dir": "artifacts/P3_PF03a_five_path_local250_proxy_v1"
+    },
+    "500": {
+      "experiment_id": "P3_PF03a_five_path_local500_proxy_v1",
+      "artifact_dir": "artifacts/P3_PF03a_five_path_local500_proxy_v1"
+    },
+    "1000": {
+      "experiment_id": "P3_PF03a_five_path_local1000_proxy_v1",
+      "artifact_dir": "artifacts/P3_PF03a_five_path_local1000_proxy_v1"
+    }
+  },
+  "window_stability_artifact_dir": "artifacts/P3_PF03a_window_stability_v1",
+  "minimum_observed_gr_rows_per_segment": 50,
+  "target_ess": 4.0,
+  "squared_gr_residual_cap": 600.0,
+  "fallback_path": "pf128_mean_delta",
+  "development_wells": 657,
+  "development_hidden_rows": 3211872,
+  "workers": 8,
+  "fold01_minimum_improvement_ft": 0.2,
+  "fold01_maximum_single_fold_degradation_ft": 0.1,
+  "shadow_target_access": false,
+  "model_training": false,
+  "formal_pf03": false
+}

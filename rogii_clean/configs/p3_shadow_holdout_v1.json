@@ -1,0 +1,35 @@
+{
+  "experiment_id": "P3_shadow_holdout_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "rogii_clean/artifacts/folds/balanced_well_5fold_v1.csv",
+  "raw_train_dir": "input/data/raw/train",
+  "number_of_shadow_wells": 116,
+  "salt": "P3_shadow_holdout_v1",
+  "selection_method": "sha256_tie_breaking_marginal_balance_greedy",
+  "legal_inputs": [
+    "well_id",
+    "fold",
+    "hidden_row_count",
+    "md_span",
+    "hidden_gr_observed_rate",
+    "x_median",
+    "y_median",
+    "azimuth_deg",
+    "typewell_tvt_gr_fingerprint"
+  ],
+  "forbidden_inputs": [
+    "horizontal_TVT",
+    "target",
+    "surface_1",
+    "surface_2",
+    "surface_3",
+    "surface_4",
+    "surface_5",
+    "surface_6",
+    "residual",
+    "error",
+    "rmse",
+    "oracle"
+  ],
+  "target_access": false
+}

@@ -1,0 +1,33 @@
+{
+  "experiment_id": "P3_N01a_pf_scale8_neighbor_residual_audit_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "rogii_clean/artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_registry": "rogii_clean/artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "input/data/raw/train",
+  "pf_legal_cache_dir": "rogii_clean/artifacts/P2_P01_multiseed_pf_mean_v1/legal_cache",
+  "development_wells": 657,
+  "fold01_validation_wells": 263,
+  "source_residual": "TVT - (last_visible_tvt + pf128_scale_8_delta)",
+  "residual_representation": "D00_control4_unanchored",
+  "trajectory_segment": "all_natural_hidden_xy_rows",
+  "maximum_distance_ft": 2500.0,
+  "maximum_azimuth_difference_deg": 45.0,
+  "minimum_parallel_overlap_ft": 500.0,
+  "maximum_neighbors": 8,
+  "distance_decay_ft": 1000.0,
+  "overlap_full_weight_ft": 1000.0,
+  "same_typewell_tail_multiplier": 1.5,
+  "typewell_tail_span_ft": 500.0,
+  "eta_prior_weight": 1.0,
+  "shuffle_seed": 20260719,
+  "screen_folds": [0, 1],
+  "gates": {
+    "minimum_supported_well_fraction": 0.5,
+    "minimum_real_vs_shuffled_improvement_ft": 0.2,
+    "real_vs_shuffled_same_direction_each_fold": true,
+    "minimum_real_vs_baseline_improvement_ft": 0.1,
+    "maximum_single_fold_degradation_ft": 0.25
+  },
+  "model_training": false,
+  "shadow_target_access": false
+}

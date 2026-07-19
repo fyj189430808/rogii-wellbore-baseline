@@ -1,0 +1,23 @@
+{
+  "experiment_id": "P3B00_group5_p2p02_v1",
+  "baseline_experiment_id": "P2_P02_multiscale_pf_paths_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "validation_unit": "complete_well",
+  "source_artifact_dir": "artifacts/P2_P02_multiscale_pf_paths_v1",
+  "source_files": [
+    "config.json",
+    "metrics.json",
+    "feature_list.json",
+    "predictions.parquet"
+  ],
+  "expected_feature_count": 41,
+  "expected_micro_rmse": 10.305704992073148,
+  "expected_fold_rmse": [
+    10.170796687354473,
+    9.4624641719035,
+    9.181973787681697,
+    10.8754729397572,
+    11.639196676252652
+  ],
+  "prediction_policy": "pointer_and_sha256_only_no_prediction_copy"
+}

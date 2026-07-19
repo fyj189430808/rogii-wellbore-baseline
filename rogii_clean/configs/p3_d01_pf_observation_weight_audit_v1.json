@@ -1,0 +1,51 @@
+{
+  "experiment_id": "P3_D01_pf_observation_weight_audit_v1",
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "source_pf_experiment_id": "P2_P01_multiseed_pf_mean_v1",
+  "source_model_experiment_id": "P2_P02_multiscale_pf_paths_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "fold_registry_sha256": "a70bc21e8b91a0ba93e9c94954868adbe00fdd097ea21f7def6dcb749f7a241c",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "shadow_registry_sha256": "7fde7c16895e02f74c96a70a1ca3d9935e0e9bfb24c7744a1992c025aad483c1",
+  "raw_train_dir": "../input/data/raw/train",
+  "source_pf_config": "configs/p2_p01_multiseed_pf_mean_v1.json",
+  "source_pf_config_sha256": "f4e9ba4e59b985aec7dcc14d2c99a4590d1bcb9946def0630a46acc3f14a243b",
+  "source_pf_core": "src/p2_p01_multiseed_pf.py",
+  "source_pf_core_sha256": "b636982d24daa4f0f34adee578bc50783e5a1e1791e9929e96dcfa32490c0782",
+  "audit_core": "src/p3_d01_pf_observation_audit.py",
+  "source_model_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "source_model_predictions_sha256": "8109514eb125f8beda2559f39e1d9f54396d41fd38fa76114423c8dd6bca4d37",
+  "source_pf_legal_cache_dir": "artifacts/P2_P01_multiseed_pf_mean_v1/legal_cache",
+  "source_pf_legal_runtime_dir": "artifacts/P2_P01_multiseed_pf_mean_v1/legal_runtime",
+  "source_pf_artifact_fingerprint": "ac1dbefd59923585671156b7d3e8b4fc7faca95c20f5f1ae6fdab92a8665954a",
+  "total_wells": 773,
+  "total_hidden_rows": 3783989,
+  "shadow_wells": 116,
+  "development_wells": 657,
+  "development_hidden_rows": 3211872,
+  "development_fold_well_counts": {
+    "0": 131,
+    "1": 132,
+    "2": 131,
+    "3": 132,
+    "4": 131
+  },
+  "development_fold_hidden_row_counts": {
+    "0": 651881,
+    "1": 630395,
+    "2": 645557,
+    "3": 649717,
+    "4": 634322
+  },
+  "workers": 8,
+  "likelihood_scales": [
+    3.0,
+    5.0,
+    8.0,
+    12.0
+  ],
+  "model_training": false,
+  "formal_feature_output": false,
+  "shadow_target_access": false
+}

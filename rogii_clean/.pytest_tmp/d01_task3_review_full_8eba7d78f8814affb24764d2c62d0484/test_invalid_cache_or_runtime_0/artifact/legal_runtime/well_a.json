@@ -1,0 +1,33 @@
+{
+  "experiment_id": "P3_D01_pf_observation_weight_audit_v1",
+  "experiment_fingerprint": "fingerprint-a",
+  "well_id": "well_a",
+  "fold": 0,
+  "hidden_rows": 2,
+  "legal_horizontal_columns": [
+    "MD",
+    "Z",
+    "GR",
+    "TVT_input"
+  ],
+  "typewell_columns": [
+    "TVT",
+    "GR"
+  ],
+  "hidden_tvt_read": false,
+  "number_of_seeds": 3,
+  "cache_sha256": "facd4bd0cd1ac589489a74796f30109d62f38e8b7d4d446837a1ec2bc6812361",
+  "legal_report": {
+    "hidden_rows": 2,
+    "observed_gr_rows": 2,
+    "observed_gr_fraction": 1.0,
+    "pf_best_ll_per_row": -0.5,
+    "pf_ll_spread": 0.25,
+    "gr_sigma": 12.0
+  },
+  "legacy_reconciliation": {
+    "enabled": false
+  },
+  "cache_hit": false,
+  "elapsed_seconds": 0.023149800006649457
+}
