@@ -1,0 +1,35 @@
+{
+  "experiment_id": "P3_R01a_nested_linear_residual_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_holdout": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "source_p2p02_config": "configs/p2_p02_multiscale_pf_paths_v1.json",
+  "source_p2p02_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "source_d01_per_well": "artifacts/P3_D01_pf_observation_weight_audit_v1/per_well.csv",
+  "raw_train_dir": "../input/data/raw/train",
+  "outer_folds": [0],
+  "residual_formula": "r(t)=a0+a1*t",
+  "progress_definition": "(MD-hidden_MD_min)/(hidden_MD_max-hidden_MD_min)",
+  "anchored_at_zero": false,
+  "coefficient_model": {
+    "type": "StandardScaler+Ridge",
+    "alpha": 10.0,
+    "multi_output": true
+  },
+  "negative_control": {
+    "type": "permute_outer_train_well_coefficient_pairs",
+    "seed": 20260719
+  },
+  "bootstrap": {
+    "unit": "well",
+    "n_resamples": 2000,
+    "seed": 42
+  },
+  "screening_gate_full5": {
+    "minimum_micro_improvement_ft": 0.10,
+    "minimum_improved_folds": 4,
+    "maximum_bootstrap_ci_upper": 0.0,
+    "coefficient_correlation_same_direction_majority": true,
+    "negative_control_must_lose_gain": true
+  }
+}

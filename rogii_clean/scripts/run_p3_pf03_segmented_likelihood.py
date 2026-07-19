@@ -53,6 +53,8 @@ NEW_PATH_COLUMNS = {
     "local500": "pf128_local500_delta",
     "local1000": "pf128_local1000_delta",
 }
+EXPECTED_FOLD0_WELLS = 131
+EXPECTED_FOLD0_HIDDEN_ROWS = 651_881
 
 
 def resolve_clean_path(value: str | Path) -> Path:
@@ -331,10 +333,32 @@ def score_paths(
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=("smoke", "fold01", "all"), default="smoke")
+    run_choice = parser.add_mutually_exclusive_group()
+    run_choice.add_argument("--mode", choices=("smoke", "fold01", "all"), default=None)
+    run_choice.add_argument("--generation-only-fold", type=int, choices=range(5))
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--artifact-dir", type=Path, default=DEFAULT_ARTIFACT_DIR)
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.mode is None and args.generation_only_fold is None:
+        args.mode = "smoke"
+    return args
+
+
+def select_generation_only_registry(
+    development: pd.DataFrame,
+    fold: int,
+) -> pd.DataFrame:
+    """只选择指定开发折；fold0 额外锁死 131 井和 651881 行合同。"""
+
+    selected = development.loc[development["fold"].astype(int).eq(int(fold))].copy()
+    if selected.empty or not selected["fold"].astype(int).eq(int(fold)).all():
+        raise ValueError(f"development 中没有可生成的 fold {fold}")
+    if int(fold) == 0 and (
+        len(selected) != EXPECTED_FOLD0_WELLS
+        or int(selected["hidden_rows"].sum()) != EXPECTED_FOLD0_HIDDEN_ROWS
+    ):
+        raise ValueError("generation-only fold0 必须精确覆盖 131 井/651881 行")
+    return selected
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -364,7 +388,14 @@ def main(argv: list[str] | None = None) -> None:
         resolve_clean_path(config["shadow_registry"]),
         config,
     )
-    selected = select_mode_registry(development, args.mode)
+    if args.generation_only_fold is None:
+        selected = select_mode_registry(development, args.mode)
+        run_label = str(args.mode)
+    else:
+        selected = select_generation_only_registry(
+            development, int(args.generation_only_fold)
+        )
+        run_label = f"generation_only_fold{int(args.generation_only_fold)}"
     artifact_dir = args.artifact_dir.resolve()
     shared_cache_dir = resolve_clean_path(config["shared_seed_cache_dir"])
     shared_fingerprint = stable_json_hash(
@@ -416,7 +447,7 @@ def main(argv: list[str] | None = None) -> None:
         for row in selected.itertuples(index=False)
     ]
     print(
-        f"P3-PF03 {args.mode}：{len(tasks)}口开发井，"
+        f"P3-PF03 {run_label}：{len(tasks)}口开发井，"
         f"{int(selected['hidden_rows'].sum()):,}隐藏行，{config['workers']}线程；"
         f"路径输出 {artifact_dir}；共享seed缓存 {shared_cache_dir}",
         flush=True,
@@ -436,9 +467,32 @@ def main(argv: list[str] | None = None) -> None:
         for runtime in runtimes
     ]
     write_csv_atomic(
-        artifact_dir / "legal" / f"per_well_{args.mode}.csv",
+        artifact_dir / "legal" / f"per_well_{run_label}.csv",
         pd.DataFrame(legal_rows),
     )
+    if args.generation_only_fold is not None:
+        cache_hits = int(sum(bool(runtime["cache_hit"]) for runtime in runtimes))
+        generation_runtime = {
+            "experiment_id": EXPERIMENT_ID,
+            "generation_only_fold": int(args.generation_only_fold),
+            "wells": int(len(tasks)),
+            "rows": int(selected["hidden_rows"].sum()),
+            "cache_hits": cache_hits,
+            "new": int(len(runtimes) - cache_hits),
+            "generated": int(len(runtimes)),
+            "fingerprints": {
+                "experiment": fingerprint,
+                "shared_cache": shared_fingerprint,
+            },
+            "completed": bool(len(runtimes) == len(tasks)),
+            "elapsed_seconds": float(time.perf_counter() - started),
+        }
+        write_json_atomic(
+            artifact_dir / f"runtime_{run_label}.json",
+            generation_runtime,
+        )
+        print(json.dumps(generation_runtime, ensure_ascii=False, indent=2), flush=True)
+        return
     metrics, per_fold, per_well = score_paths(
         selected=selected,
         artifact_dir=artifact_dir,

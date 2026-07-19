@@ -1,0 +1,31 @@
+{
+  "experiment_id": "P3_N01b_half_strength_neighbor_residual_v1",
+  "parent_experiment_id": "P3_N01a_pf_scale8_neighbor_residual_audit_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "rogii_clean/artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_registry": "rogii_clean/artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "input/data/raw/train",
+  "pf_legal_cache_dir": "rogii_clean/artifacts/P2_P01_multiseed_pf_mean_v1/legal_cache",
+  "n01a_existing_cache_dir": "rogii_clean/artifacts/P3_N01a_pf_scale8_neighbor_residual_audit_v1/legal_cache",
+  "development_wells": 657,
+  "development_rows": 3211872,
+  "fold01_wells": 263,
+  "fold01_rows": 1282276,
+  "fold0_selection_grid": [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
+  "selection_fold": 0,
+  "confirmation_fold": 1,
+  "frozen_multiplier": 0.5,
+  "prediction_formula": "baseline_scale8_tvt + 0.5 * (n01a_neighbor_corrected_tvt - baseline_scale8_tvt)",
+  "neighbor_generator_frozen_from": "P3_N01a_pf_scale8_neighbor_residual_audit_v1",
+  "screen_result_precomputed": {
+    "fold01_baseline_rmse": 10.908191852674694,
+    "fold01_half_strength_rmse": 10.736700700640545,
+    "fold01_improvement_ft": 0.17149115203414844
+  },
+  "full5_gates": {
+    "minimum_pooled_improvement_ft": 0.1,
+    "minimum_improved_folds": 4
+  },
+  "model_training": false,
+  "shadow_target_access": false
+}

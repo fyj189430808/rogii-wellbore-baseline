@@ -1,0 +1,16 @@
+{
+  "experiment_id": "P3_R01a_nested_linear_residual_full_features_v1",
+  "source_nested_predictions": "artifacts/P3_R01a_nested_linear_residual_v1/base_models/outer_0",
+  "outer_fold": 0,
+  "expected_outer_train_wells": 526,
+  "expected_outer_valid_wells": 131,
+  "feature_count": 32,
+  "residual_formula": "r(t)=a0+a1*t",
+  "anchored_at_zero": false,
+  "coefficient_model": "SimpleImputer(add_indicator=True)+StandardScaler+Ridge(alpha=10)",
+  "ridge_alpha": 10.0,
+  "shuffle_seed": 20260719,
+  "bootstrap_seed": 42,
+  "bootstrap_resamples": 2000,
+  "shadow_target_access": false
+}
