@@ -1,0 +1,47 @@
+{
+  "experiment_id": "P4_FINAL00_UP03_shadow_v1",
+  "candidate_id": "P4_FINAL00_UP03_v1",
+  "result_class_pending": "shadow_confirmed_pipeline",
+  "base_model_id": "P3B00_group5_p2p02_v1",
+  "learned_models": 1,
+  "model": {
+    "type": "lightgbm.LGBMRegressor",
+    "features": 41,
+    "trees": 1734,
+    "seed": 29,
+    "target": "TVT - last_known_TVT"
+  },
+  "postprocess": {
+    "up01_degree": 2,
+    "up01_blend": 0.5,
+    "pfs_lag_ft": 1000,
+    "pfs_correction_fraction": 0.25,
+    "model_training_in_postprocess": false
+  },
+  "shadow": {
+    "version": "P3_shadow_holdout_v1",
+    "wells": 116,
+    "fold_counts": {"0": 24, "1": 23, "2": 23, "3": 23, "4": 23},
+    "candidates_scored": ["P3B00", "P4_FINAL00_UP03_v1"],
+    "parameter_search": false
+  },
+  "standard_score": {
+    "source": "existing P2-P02 OOF prediction for each shadow well",
+    "status": "legal_candidates_landed_not_scored"
+  },
+  "strict_score": {
+    "for_each_shadow_fold_f": "train only non-shadow development wells with fold != f; predict shadow wells with fold == f",
+    "postprocess": "identical frozen UP03",
+    "status": "preregistered_not_run"
+  },
+  "gate_each_score": {
+    "minimum_pooled_improvement_ft": 0.15,
+    "minimum_improved_folds": 3,
+    "minimum_well_win_rate": 0.52,
+    "maximum_bootstrap_ci_upper_ft_exclusive": 0.0,
+    "maximum_p90_degradation_ft": 0.2
+  },
+  "final_pass_requires": "standard_score_gate AND strict_score_gate",
+  "hidden_target_used_in_generation": false,
+  "test_reproducible": true
+}

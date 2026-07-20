@@ -1,5 +1,5 @@
 {
-  "phase": 3,
+  "phase": 4,
   "phase3_objective": "固定单模 LightGBM、按井五折和自然隐藏评价区，优先突破 PF 整段路径、动态可靠性与严格 OOF 低维残差表示",
   "main_cv": {
     "fold_version": "balanced_well_5fold_v1",
@@ -26,7 +26,7 @@
   },
   "shadow_holdout": {
     "version": "P3_shadow_holdout_v1",
-    "status": "frozen_unopened",
+    "status": "opened_once_standard_and_strict_scored",
     "selection_method": "label_free_fold_balanced_representative_selection",
     "wells": 116,
     "fold_counts": {
@@ -37,7 +37,9 @@
       "4": 23
     },
     "development_wells": 657,
-    "target_or_error_accessed": false,
+    "target_or_error_accessed": true,
+    "opened_date": "2026-07-20",
+    "future_use": "confirmation_only_already_consumed_never_for_parameter_or_route_selection",
     "artifact_dir": "artifacts/P3_shadow_holdout_v1"
   },
   "p3_d00": {
@@ -211,18 +213,64 @@
   "p3_up06": {"experiment_id":"P3_UP06_projection_strength_oracle_audit_v1","status":"complete_diagnostic_insufficient_potential_alpha_model_stopped","up03_per_well_alpha_oracle_rmse":9.636287928493269,"up03_per_well_alpha_oracle_potential_ft":0.09268774886562244,"alpha_model_supported":false,"shadow_target_access":false,"artifact_dir":"artifacts/P3_UP06_projection_strength_oracle_audit_v1"},
   "p3_up07": {"experiment_id":"P3_UP07_pfs_correction_strength_oracle_v1","status":"complete_diagnostic_supported_up08","up03_per_well_pfs_alpha_oracle_rmse":8.434228699646834,"up03_per_well_pfs_alpha_oracle_potential_ft":1.294746977712057,"up08_supported":true,"shadow_target_access":false,"artifact_dir":"artifacts/P3_UP07_pfs_correction_strength_oracle_v1"},
   "p3_pfs03": {"experiment_id":"P3_PFS03_max_available_lag_postcorrection_v1","status":"complete_folds01_small_improvement_below_gate","pooled_improvement_ft":0.025413530312640376,"gate_passed":false,"shadow_target_access":false,"artifact_dir":"artifacts/P3_PFS03_max_available_lag_postcorrection_v1"},
-  "latest_experiment": "P3_PFS03_max_available_lag_postcorrection_v1",
-  "latest_status": "complete_folds01_small_improvement_below_gate",
-  "latest_artifact_dir": "artifacts/P3_PFS03_max_available_lag_postcorrection_v1",
+  "p3_up08": {"experiment_id":"P3_UP08_strict_oof_pfs_weight_v1","status":"complete_outer0_gate_failed_stopped","outer_fold":0,"outer_wells":131,"outer_rows":651881,"fixed_alpha025_rmse":9.820851308884121,"predicted_alpha_rmse":9.755088270990846,"improvement_ft":0.06576303789327476,"well_win_rate":0.6106870229007634,"bootstrap_ci95":[-0.17394142165503268,0.008503775772008093],"shuffle_improvement_ft":0.002367826198215184,"gate_passed":false,"shadow_target_access":false,"artifact_dir":"artifacts/P3_UP08_strict_oof_pfs_weight_v1/formal_rerun_fixed_v1"},
+  "latest_experiment": "P4_FINAL00_UP03_v1",
+  "latest_status": "standard_and_strict_shadow_gates_passed",
+  "latest_artifact_dir": "artifacts/P4_FINAL00_UP03_strict_shadow_v1",
   "current_development_best": {
     "experiment_id": "P3_UP03_up01_plus_pfs_correction_v1",
     "path_micro_rmse": 9.7289756774,
     "scope": "657_well_development_path_only_not_formal_773_cv"
   },
-  "next_experiment": "P3_UP08_strict_oof_pfs_correction_strength_active",
+  "phase4_contract": {
+    "feature_research": "feature_ablation_cv_single_frozen_lightgbm",
+    "deterministic_pipeline": "one_learned_model_plus_fixed_label_free_whole_well_postprocess",
+    "learned_fusion": "nested_fusion_cv_required"
+  },
+  "phase4_final_candidate": {
+    "candidate_id": "P4_FINAL00_UP03_v1",
+    "result_class": "shadow_confirmed_pipeline",
+    "learned_models": 1,
+    "development_wells": 657,
+    "development_micro_rmse": 9.7289756774,
+    "shadow_status": "standard_and_strict_gates_passed",
+    "standard_shadow": {
+      "baseline_rmse": 10.49211151474222,
+      "pipeline_rmse": 10.097720386189202,
+      "improvement_ft": 0.3943911285530177,
+      "improved_folds": 5,
+      "well_win_rate": 0.7672413793103449,
+      "bootstrap_ci95": [-0.7753540760456689, -0.09090506591470913],
+      "p90_degradation_ft": 0.15412738336091536,
+      "gate_passed": true,
+      "artifact_dir": "artifacts/P4_FINAL00_UP03_shadow_v1"
+    },
+    "strict_shadow": {
+      "baseline_rmse": 10.956707404437102,
+      "pipeline_rmse": 10.353233025882584,
+      "improvement_ft": 0.6034743785545178,
+      "improved_folds": 5,
+      "well_win_rate": 0.7241379310344828,
+      "bootstrap_ci95": [-1.1162371475892925, -0.21819172856935973],
+      "p90_degradation_ft": -0.24717181171749836,
+      "gate_passed": true,
+      "artifact_dir": "artifacts/P4_FINAL00_UP03_strict_shadow_v1"
+    },
+    "final_pass_rule": "standard_gate AND strict_gate",
+    "final_passed": true
+  },
+  "phase4_submission_pipeline": {
+    "pipeline_id": "P4_FINAL_PIPELINE_UP03_v1",
+    "status": "established_after_double_shadow_confirmation",
+    "base_model": "P2-P02_single_lightgbm_41_features_1734_trees_seed29",
+    "postprocess": "UP01_degree2_blend50_then_lag1000_PFS_correction_alpha025",
+    "test_reproducible": true,
+    "raw_and_final_predictions_must_both_be_saved": true
+  },
+  "next_experiment": "P4_STRUCT01_pending_preregistration",
   "current_blocker": null,
-  "route_status": "active_shadow_closed_up08",
-  "roadmap_version": "phase3_path_breakthrough_v1",
+  "route_status": "up03_double_shadow_confirmed_continue_structural_path_research_without_reusing_shadow",
+  "roadmap_version": "phase4_dual_track_v1",
   "phase2_history": {
     "best_experiment_id": "P2_P02_multiscale_pf_paths_v1",
     "best_micro_rmse": 10.3057049921,

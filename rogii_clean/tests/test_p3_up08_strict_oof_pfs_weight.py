@@ -11,12 +11,58 @@ from src.p3_up08_strict_oof_pfs_weight import (
     optimal_alpha,
     shrink_alpha,
 )
+import scripts.run_p3_up08_strict_oof_pfs_weight as up08_runner
 from scripts.run_p3_up08_strict_oof_pfs_weight import (
+    add_paths_and_features,
+    validate_nested_runtime_fingerprint,
     outer_train_preprocess,
     require_outer0_nested_prediction_path,
     shuffle_training_targets,
     validate_nested_partition,
 )
+
+
+def test_add_paths_converts_blended_u_back_to_tvt_exactly_once(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(up08_runner, "PFS_RUNTIME_DIR", tmp_path)
+    (tmp_path / "well-a.json").write_text(
+        '{"hidden_rows": 3, "resample_count": 0, '
+        '"lag250_smooth_rows": 3, "lag250_fallback_rows": 0, '
+        '"lag500_smooth_rows": 3, "lag500_fallback_rows": 0, '
+        '"lag1000_smooth_rows": 3, "lag1000_fallback_rows": 0}',
+        encoding="utf-8",
+    )
+    keys = {
+        "well_id": ["well-a"] * 3,
+        "fold": [0] * 3,
+        "row_index": [0, 1, 2],
+    }
+    predictions = pd.DataFrame(
+        {**keys, "md": [0.0, 1.0, 2.0], "pred_tvt": [100.0, 101.0, 102.0]}
+    )
+    pfs = pd.DataFrame(
+        {
+            **keys,
+            "last_visible_tvt": [100.0] * 3,
+            "pfs_lag250_delta": [0.0, 1.0, 2.0],
+            "pfs_lag500_delta": [0.0, 1.0, 2.0],
+            "pfs_lag1000_delta": [0.0, 1.0, 2.0],
+        }
+    )
+    context = pd.DataFrame(
+        {
+            "well_id": ["well-a"] * 3,
+            "row_index": [0, 1, 2],
+            "z_current": [-90.0, -91.0, -92.0],
+            "gr_missing": [False] * 3,
+        }
+    )
+
+    result, _ = add_paths_and_features(predictions, pfs, context)
+
+    # U 恒为 10，二次投影不应改变路径；还原 TVT 时只能减一次 Z。
+    np.testing.assert_allclose(result["up01_tvt"], predictions["pred_tvt"], atol=1e-12)
 
 
 def test_optimal_alpha_matches_closed_form_and_reports_direction_energy() -> None:
@@ -161,6 +207,26 @@ def test_validate_nested_partition_rejects_shadow_and_train_validation_overlap()
             outer.loc[outer["well_id"].eq("outer-a")],
             forbidden_well_ids=set(),
         )
+
+
+def test_validate_nested_partition_rejects_well_absent_from_frozen_pfs_manifest() -> None:
+    inner = pd.DataFrame({"well_id": ["inner-a"], "fold": [1]})
+    outer = pd.DataFrame({"well_id": ["outer-a"], "fold": [0]})
+
+    with pytest.raises(ValueError, match="冻结 PFS 开发井清单"):
+        validate_nested_partition(
+            inner,
+            outer,
+            forbidden_well_ids=set(),
+            allowed_well_ids={"inner-a"},
+        )
+
+
+def test_validate_nested_runtime_fingerprint_rejects_wrong_expected_fingerprint() -> None:
+    runtime = {"fingerprint": "actual-nested-fingerprint"}
+
+    with pytest.raises(RuntimeError, match="fingerprint"):
+        validate_nested_runtime_fingerprint(runtime, "expected-nested-fingerprint")
 
 
 def test_outer_train_preprocess_uses_train_median_and_scaler_only() -> None:

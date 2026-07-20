@@ -1,0 +1,23 @@
+{
+  "experiment_id": "P3_UP08_strict_oof_pfs_weight_v1",
+  "outer_fold": 0,
+  "nested_source": "P3_R01a_nested_linear_residual_v1/base_models/outer_0",
+  "expected_nested_fingerprint": "86802e9888364042ae423a81b7f8bb20b406ff1f0eb3389d5eef6dbe39d9bcae",
+  "pfs_fingerprint": "4bf62f495ef530bb3ca53d65d15475f7bc3784fe5abaebbbb1053584704c4480",
+  "pfs_frozen_development_manifest": "artifacts/P3_PFS01_fixed_lag_particle_smoothing_v1/per_well_runtime_all.csv",
+  "expected_development_wells": 657,
+  "expected_outer_wells": 131,
+  "expected_inner_wells": 526,
+  "model_contract": {"features": 41, "trees": 1734},
+  "up01": {"degree": 2, "blend": 0.5},
+  "ridge_alpha": 100.0,
+  "alpha_center": 0.25,
+  "alpha_shrink_strength": 0.5,
+  "alpha_output_clip": [-0.25, 0.75],
+  "target_clip": [-0.5, 1.0],
+  "shuffle_seed": 42,
+  "bootstrap": {"resamples": 2000, "seed": 42},
+  "shadow_files_read": false,
+  "registry_update": false,
+  "current_state_update": false
+}

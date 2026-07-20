@@ -1,14 +1,12 @@
-# ROGII Wellbore Geology：private-safe baseline
+# ROGII Wellbore Geology：双轨研究与最终路径管线
 
 这是 ROGII Wellbore Geology Prediction 比赛的学习型研究仓库。
 
-当前目标不是继续堆模型，而是：
+当前采用双轨合同：
 
-1. 看懂并复现现有 PF 思路；
-2. 去除直接同井标签/contact 通道；
-3. 冻结可信的 spatial-pad CV；
-4. 固定一个 LightGBM；
-5. 每次只研究一个新数据特征组。
+1. 特征研究继续固定单个 LightGBM，保持可比性；
+2. 最终竞赛管线允许在唯一学习模型后应用无标签、确定性、参数冻结的整井路径处理；
+3. 学习型融合必须采用 outer/inner 严格嵌套 OOF。
 
 ## 当前状态
 
@@ -27,56 +25,51 @@
 
 Notebook 内的旧输出没有被伪装成新结果。重新运行之前，不能把旧 hash 或旧日志当作 private-safe 分数。
 
-## 当前没有可信的最终 CV
+## 当前可信结果
 
-历史结果中：
+| 层级 | 实验 | 范围 | micro RMSE | 状态 |
+|---|---|---:|---:|---|
+| 原始 LightGBM | `P3B00_group5_p2p02_v1` | 773 井 | `10.305705` | 冻结基线 |
+| 确定性路径 | `P3_UP01_robust_u_projection_v1` | 657 开发井 | `9.947068` | 五折均改善 |
+| 确定性最终候选 | `P3_UP03_up01_plus_pfs_correction_v1` | 657 开发井 | `9.728976` | folds 3–4 独立确认 |
+| 影子验证 | `P4_FINAL00_UP03_v1` | 116 影子井 | 尚未评分 | 候选生成中 |
 
-- 最佳单 LightGBM OOF 约为 10.4733；
-- Ridge stack OOF 约为 10.4197；
-- Model Package 后处理 OOF 约为 10.6702。
-
-这些结果使用普通井级 GroupKFold，且空间/KNN 特征没有在每个 outer fold 内完全重建；最终高分链也没有完整 OOF。因此它们只作为历史参考，不是新基线成绩。
-
-新的固定 CV 已建立，但尚未训练 LightGBM，所以仓库目前没有宣称新的模型 CV。
+`9.728976` 是开发集确定性管线成绩，不是 773 井完整 CV；原始模型基线 `10.305705` 不被覆盖。
 
 ## 固定 CV
 
-主 CV：
+主 CV：`balanced_well_5fold_v1`。
 
-    median-XY 1000-unit connected-pad CV v1
-
-定义：
-
-1. 每口井取完整轨迹的中位 X/Y；
-2. 代表点距离不超过 1000 个原始坐标单位时连边；
-3. 连通分量作为不可拆分的 pad；
-4. 290 个 pad 按隐藏行数确定性平衡到五折。
-
-| fold | wells | pads | hidden rows |
-|---:|---:|---:|---:|
-| 0 | 147 | 57 | 757,050 |
-| 1 | 155 | 58 | 756,990 |
-| 2 | 157 | 58 | 756,649 |
-| 3 | 155 | 58 | 757,061 |
-| 4 | 159 | 59 | 756,239 |
-
-固定 fold 注册表 SHA-256：
-
-    0c217c417c6f62a2105c4056e92a23dfbaefa8b1d1fa8f5a11c13637b9cd99ab
+- 773 口完整井；
+- 自然隐藏区固定为 `TVT_input.isna()`；
+- 共 3,783,989 个评价行；
+- 固定 fold 注册表：`rogii_clean/artifacts/folds/balanced_well_5fold_v1.csv`；
+- 注册表 SHA-256：`a70bc21e8b91a0ba93e9c94954868adbe00fdd097ea21f7def6dcb749f7a241c`。
 
 详细限制见 [验证与指标文档](docs/07_validation_and_metrics.md)。
 
-## 固定单模 LightGBM
+## 双轨合同
 
-后续特征实验只允许一个 LightGBM：
+特征研究轨道只允许一个 LightGBM：
 
 - target：`TVT - last_known_TVT`；
 - seed：29；
 - 固定 1,734 棵树；
 - 不使用 outer-valid early stopping；
-- 不调整模型、target、fold 或后处理；
-- 不使用 CatBoost、TCN、TabICL、stacking 或输出融合；
+- 不调整模型、target 或 fold；
+- 不做后处理、stacking 或输出融合；
 - 每次只新增一个命名特征组。
+
+最终路径轨道仍然只允许这一个学习模型，但可在其输出后使用冻结的确定性整井算子，包括稳健 U 投影、固定滞后 PFS 和固定比例连续修正。当前唯一候选为：
+
+```text
+P4_FINAL00_UP03_v1
+= P2-P02
+→ U 二次稳健投影（0.50）
+→ lag1000 PFS 修正（0.25）
+```
+
+任何每井权重、Ridge、第二个 LightGBM 或候选选择器仍须走严格嵌套融合合同。
 
 完整配置见：
 
@@ -118,8 +111,7 @@ Notebook 内的旧输出没有被伪装成新结果。重新运行之前，不�
 
 固定输出：
 
-    rogii_clean/artifacts/folds/spatial_pad_1000_v1.csv
-    rogii_clean/artifacts/folds/spatial_pad_1000_v1.meta.json
+    rogii_clean/artifacts/folds/balanced_well_5fold_v1.csv
 
 ## 统一评分
 
@@ -145,21 +137,9 @@ Notebook 内的旧输出没有被伪装成新结果。重新运行之前，不�
 - 胜井率；
 - 井级 paired bootstrap。
 
-## 特征实验顺序
+## 当前执行项
 
-完整实验卡见 [feature_roadmap.md](rogii_clean/experiments/feature_roadmap.md)。
-
-顺序固定为：
-
-1. 前缀 `U=TVT_input+Z` 多窗口倾角；
-2. GR 缺失与插值可靠性；
-3. 多尺度 horizontal/typewell GR 对齐；
-4. 当前井可见前缀 self-template；
-5. 冻结 PF 的不确定性；
-6. 合法 prefix-cut 可靠性统计；
-7. fold-safe 空间 KNN/局部平面。
-
-在 carry、冻结 PF 和 B0 单模 LightGBM 稳定复现前，不开始 F01。
+唯一候选 `P4_FINAL00_UP03_v1` 已在影子目标打开前冻结。标准影子 OOF 评分和严格排除全部影子井的评分已经同时预登记，只比较 P3B00 与冻结 UP03，不在影子井上搜索其他候选或比例。
 
 ## 学习文档
 
@@ -179,4 +159,17 @@ Notebook 内的旧输出没有被伪装成新结果。重新运行之前，不�
 - 在 outer fold 外复用空间/KNN 拟合；
 - 偷换 fold、模型、target 或评分行；
 - 用一次失败否定整个信息源；
-- 未记录就混入模型或后处理。
+- 未记录就混入模型或后处理；
+- 用影子井或榜单重新选择确定性管线参数；
+- 使用全局 OOF 预测直接训练外层融合器。
+
+## 2026-07-20 Phase 4 影子确认结果
+
+冻结候选 `P4_FINAL00_UP03_v1` 已完成唯一一次影子验证，并同时通过预注册的标准与严格两套门槛：
+
+| 层级 | 基线 RMSE | 管线 RMSE | 改善 | 结论 |
+|---|---:|---:|---:|---|
+| 标准影子，116 井 | 10.492112 | 10.097720 | 0.394391 ft | 5/5 折改善，通过 |
+| 严格影子，116 井 | 10.956707 | 10.353233 | 0.603474 ft | 5/5 折改善，通过 |
+
+`P4_FINAL00_UP03_v1` 现正式登记为 `shadow_confirmed_pipeline`，对应提交管线编号为 `P4_FINAL_PIPELINE_UP03_v1`。影子集已经消耗，今后不得用于选择参数、特征、比例或研究路线。开发集 `9.728976`、两项影子成绩和 Kaggle 榜单成绩继续分开报告，不能混称为同一个 CV。
