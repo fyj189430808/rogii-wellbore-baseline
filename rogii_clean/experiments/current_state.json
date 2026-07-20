@@ -232,6 +232,6 @@
     "fold_version": "spatial_pad_1000_v1",
     "best_reproducible_id": "F05a_deterministic_candidates_v1",
     "best_reproducible_micro_rmse": 12.930691493610633,
-    "comparison_warning": "旧协议成绩只保留为历史记录，不能与按井五折结果直接判断提升"
+    "comparison_warning": "Historical phase-1 results are retained only as records and are not directly comparable with complete-well five-fold results."
   }
 }

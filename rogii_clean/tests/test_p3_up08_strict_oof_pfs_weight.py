@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from src.p3_up08_strict_oof_pfs_weight import (
     build_well_features,
     optimal_alpha,
     shrink_alpha,
+)
+from scripts.run_p3_up08_strict_oof_pfs_weight import (
+    outer_train_preprocess,
+    require_outer0_nested_prediction_path,
+    shuffle_training_targets,
+    validate_nested_partition,
 )
 
 
@@ -132,3 +139,48 @@ def test_build_well_features_rejects_missing_runtime_key_with_clear_value_error(
             {"lag250": base, "lag500": base, "lag1000": base},
             {"gr_observed_fraction": 1.0, "hidden_rows": 2},
         )
+
+
+def test_require_outer0_nested_prediction_path_rejects_non_outer0_cache() -> None:
+    with pytest.raises(ValueError, match="outer_0"):
+        require_outer0_nested_prediction_path(
+            "artifacts/P3_R01a_nested_linear_residual_v1/base_models/outer_1/base/fold_0/predictions.parquet"
+        )
+
+
+def test_validate_nested_partition_rejects_shadow_and_train_validation_overlap() -> None:
+    outer = pd.DataFrame({"well_id": ["outer-a", "shadow-a"], "fold": [0, 0]})
+    inner = pd.DataFrame({"well_id": ["outer-a", "inner-a"], "fold": [1, 1]})
+
+    with pytest.raises(ValueError, match="shadow"):
+        validate_nested_partition(inner, outer, forbidden_well_ids={"shadow-a"})
+
+    with pytest.raises(ValueError, match="交叉"):
+        validate_nested_partition(
+            inner.loc[inner["well_id"].eq("outer-a")],
+            outer.loc[outer["well_id"].eq("outer-a")],
+            forbidden_well_ids=set(),
+        )
+
+
+def test_outer_train_preprocess_uses_train_median_and_scaler_only() -> None:
+    train = pd.DataFrame({"stable": [0.0, 2.0, 4.0], "missing": [1.0, np.nan, 5.0]})
+    validation = pd.DataFrame({"stable": [1000.0], "missing": [100.0]})
+
+    prepared_train, prepared_validation, audit = outer_train_preprocess(train, validation)
+
+    assert audit["medians"] == {"stable": 2.0, "missing": 3.0}
+    np.testing.assert_allclose(prepared_train.mean(axis=0), np.zeros(2), atol=1e-12)
+    scale = np.sqrt(8.0 / 3.0)
+    np.testing.assert_allclose(prepared_validation["stable"].to_numpy(), np.array([(1000.0 - 2.0) / scale]))
+    np.testing.assert_allclose(prepared_validation["missing"].to_numpy(), np.array([(100.0 - 3.0) / scale]))
+
+
+def test_shuffle_training_targets_is_fixed_to_seed_42() -> None:
+    targets = np.arange(10, dtype=np.float64)
+
+    first = shuffle_training_targets(targets)
+    second = shuffle_training_targets(targets)
+
+    np.testing.assert_array_equal(first, np.random.default_rng(42).permutation(targets))
+    np.testing.assert_array_equal(first, second)
