@@ -1,14 +1,28 @@
 # PF 与当前高分流程的入口
 
+核对日期：2026-07-20。本文把“历史 Notebook 总入口”“裸 PF 生成入口”“41 列 LightGBM 入口”分别说明。
+
 ## 0. 一句话结论
 
-项目的总入口不是某个 Python 脚本，而是：
+历史高分方案的总入口不是某个 Python 脚本，而是：
 
     rogii-dual-track-prefix-calibrated-geosteering.ipynb
 
 必须从上到下执行整个 Notebook。第一个真正控制算法的单元格是单元格 6；单元格 43 中虽然有一个名为 `main()` 的函数，但它只负责第二条 learned trajectory，不是全项目入口。
 
-版本状态：2026-07-16 起源码默认关闭直接同井标签/contact 通道。Notebook 中现存的同井覆盖输出是修改前历史日志，不是当前 private-safe 源码的运行结果。
+但当前已经整理好的、可做五折复现的入口是两个 Python 脚本：
+
+```text
+rogii_clean/scripts/run_p2_p01_multiseed_pf_mean.py
+    负责生成 128-seed PF 路径缓存
+
+rogii_clean/scripts/run_p2_p02_multiscale_pf_paths_cv.py
+    负责把 PF 路径加入 41 列单模 LightGBM 并完成五折评分
+```
+
+这两个入口不能混称：第一个输出裸 PF 路径，第二个输出带 LightGBM 的 `10.3057` OOF。
+
+版本状态：2026-07-16 起 Notebook 源码默认关闭直接同井标签/contact 通道。Notebook 中现存的同井覆盖输出是修改前历史日志，不是当前 private-safe 源码的运行结果。当前本地也没有历史 `10.7321` 对应的完整配置和预测产物，因此不能说它已经被精确复现。
 
 ## 1. 输入和输出
 
@@ -17,12 +31,12 @@
 | 输入 | 本地路径 | Kaggle 运行路径 | 作用 |
 |---|---|---|---|
 | 比赛数据 | `input/data/raw/` | `/kaggle/input/competitions/rogii-wellbore-geology-prediction` | 井数据和提交 ID |
-| 第一条轨道模型 | `input/Wellbore Geology Prediction  Artifacts/` | `/kaggle/input/datasets/ravaghi/wellbore-geology-prediction-artifacts` | 五个预训练模型和训练特征 |
-| 第二条轨道模型 | `input/rogii-claude-models-pub/` | `/kaggle/input/datasets/fleongg/rogii-claude-models-pub` | 三个 learned trajectory 模型 |
-| 最终模型包 | `input/ROGII Model Package/` | `/kaggle/input/datasets/pilkwang/rogii-model-package` | 最多 0.5% 的门控校正 |
-| koolbox wheel | `input/koolbox offline/` | 一个 `koolbox-offline` 挂载目录 | 反序列化旧 Trainer |
+| 第一条轨道模型 | `input/others/data/`、`input/others/models/` | `/kaggle/input/datasets/ravaghi/wellbore-geology-prediction-artifacts` | 五个预训练模型和训练特征 |
+| 第二条轨道模型 | `input/others/features.json`、`input/others/lgb*.pkl` | `/kaggle/input/datasets/fleongg/rogii-claude-models-pub` | 三个 learned trajectory 模型 |
+| 最终模型包 | 本地缺失 | `/kaggle/input/datasets/pilkwang/rogii-model-package` | 最多 0.5% 的门控校正 |
+| koolbox wheel | `input/others/koolbox-*.whl` | 一个 `koolbox-offline` 挂载目录 | 反序列化旧 Trainer |
 
-本地路径提醒：第二版 CFG 支持用 `ROGII_DATA` 指定数据目录，但第一条轨道仍直接读取单元格 6 的 `COMPETITION_DATA_ROOT`。因此当前原始 Notebook 不能只设置 `ROGII_DATA` 就在本地从头跑通；后续复现脚本必须显式统一两段路径。
+本地路径提醒：第二版 CFG 支持用 `ROGII_DATA` 指定数据目录，但第一条轨道仍直接读取单元格 6 的 `COMPETITION_DATA_ROOT`。此外，本地缺少最终模型包。原 Notebook 因而不能只设置 `ROGII_DATA` 就在本机从头跑通；当前可复现流程应走 `rogii_clean/scripts/`。
 
 ### 1.2 总输出
 
@@ -340,7 +354,9 @@ Notebook 保存的历史日志：
 
 ## 6. PF 真正从哪里开始
 
-如果目标是先独立理解 selector PF，入口是：
+### 6.1 历史 Notebook 的 selector PF
+
+如果目标是先独立理解历史 Notebook 的 selector PF，入口是：
 
     Notebook 单元格 11
       └── run_particle_filter(hw, tw, n_particles=500, seed=42)
@@ -367,6 +383,67 @@ Notebook 保存的历史日志：
       └── apply_selector_variant(...)
 
 历史运行曾在单元格 26 选择 `tvt_phys`。当前 private-safe 开关关闭该分支，PF/Beam selector 会进入 `sub_2`；仍需重新执行 Notebook 才能得到对应提交。
+
+### 6.2 当前可复现的 PF 入口
+
+当前用于学习和复算的主入口是：
+
+```text
+python rogii_clean/scripts/run_p2_p01_multiseed_pf_mean.py
+```
+
+调用链：
+
+```text
+scripts/run_p2_p01_multiseed_pf_mean.py
+→ 读取每口井的 MD、Z、GR、TVT_input
+→ 读取配对 typewell 的 TVT、GR
+→ src/p2_p01_multiseed_pf.py::prepare_particle_filter_inputs()
+→ particle_filter_all_seeds_numba()
+→ build_multiseed_pf_features()
+→ 保存 mean、scale 3/5/8/12 路径和逐井运行记录
+```
+
+最值得先读的代码：
+
+| 位置 | 作用 |
+|---|---|
+| `src/p2_p01_multiseed_pf.py:57` | 128 个 seed 共用的粒子滤波内核 |
+| `src/p2_p01_multiseed_pf.py:466` | 把一口井整理成 PF 所需数组 |
+| `src/p2_p01_multiseed_pf.py:682` | 把 128 条路径汇总为均值和四个 scale |
+| `scripts/run_p2_p01_multiseed_pf_mean.py:450` | 只读取推理时合法的原始列 |
+| `scripts/run_p2_p01_multiseed_pf_mean.py:959` | 命令行主入口和逐井缓存循环 |
+
+这个脚本产生的是路径，不训练跨井模型。当前完整回放中最好的裸路径是 scale 8，RMSE 为 `10.9543`。
+
+### 6.3 当前 10.3057 的入口
+
+```text
+python rogii_clean/scripts/run_p2_p02_multiscale_pf_paths_cv.py
+```
+
+它做的事情是：
+
+```text
+P2-P01 的五条 PF 相对路径
++ 36 条冻结基础/确定性候选特征
+→ 41 列输入
+→ balanced_well_5fold_v1
+→ 单个 LightGBM
+→ 预测 TVT 相对最后可见 TVT 的增量
+→ 完整五折 OOF RMSE 10.3057049921
+```
+
+因此，`P3B00_group5_p2p02_v1` 只是把这次结果冻结为后续实验的比较基线；它不是另一个 PF 算法，也没有重新训练模型。
+
+### 6.4 三个名字不要混用
+
+| 常见叫法 | 实际内容 | 当前可核验分数 |
+|---|---|---:|
+| selector PF | Notebook cell 11 的 PF + 可选 Beam + carry hold | 没有保存一份可信的 128-seed 完整五折产物 |
+| 裸 PF | P2-P01 复刻的 mean/scale 路径 | 最好 scale 8：10.9543 |
+| P2-P02 / P3B00 | 五条 PF 路径进入 41 列单模 LightGBM | 10.3057 |
+| 历史“PF 10.7” | 口头名称，血缘可能混合 selector 与后处理 | 本地尚不能精确指认 |
 
 ## 7. 当前入口的 fallback
 
@@ -428,3 +505,5 @@ Notebook 保存的历史日志：
 6. private-safe 模式下 `sub_2` 为什么会使用 PF/Beam selector？
 7. 为什么 Notebook 中保存的 14,151 行同井覆盖日志已经是历史输出？
 8. 最终模型包的 0.5% 是模型内部权重还是整个包的外部权重？
+9. 为什么 P2-P01 的 scale 8 `10.9543` 才是当前可核验的裸 PF，而 P2-P02 的 `10.3057` 不是纯 PF？
+10. `P3B00_group5_p2p02_v1` 为什么只是冻结指针，不是一个新模型？

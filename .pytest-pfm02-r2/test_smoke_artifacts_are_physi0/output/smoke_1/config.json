@@ -1,0 +1,13 @@
+{
+  "experiment_fingerprint": "8873db590f5e8e40b229ccdb8c69ec38c40592720429521b1444b2ba8850abf4",
+  "experiment_id": "P3_PFM02_mode_paths_v1",
+  "generator_sha256": "1cd5004a556557d2c7a3c1c7ca1260351390f8f5c8fb0bb2183499ad819082e4",
+  "hidden_tvt_read": false,
+  "max_wells": 1,
+  "pfm01_core_sha256": "2794c417dc33c8887135224d119553f168c446230844e1ad8db74831c7e510a0",
+  "selected_rows": 5,
+  "selected_wells": 1,
+  "shadow_wells": 0,
+  "shared_fingerprint": "91053aa823f16f7f58478e5f890c11a4450250c94d1804a85c659dc4556468f0",
+  "workers": 1
+}

@@ -1,0 +1,36 @@
+{
+  "experiment_id": "P3_UP05_iterated_quadratic_projection_v1",
+  "comparison_baseline": "P3_UP03_up01_plus_pfs_correction_v1",
+  "source_up03_legal_paths": [
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_candidates_folds012.parquet",
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_candidates_folds34.parquet"
+  ],
+  "source_up03_manifests": [
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_manifest_folds012.json",
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_manifest_folds34.json"
+  ],
+  "source_up03_column": "candidate_pred_tvt",
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "../input/data/raw/train",
+  "development_folds": [0, 1, 2, 3, 4],
+  "screening_folds": [0, 1],
+  "confirmation_folds_after_gate": [2, 3, 4],
+  "projection": {
+    "coordinate": "U=UP03_pred_tvt+Z",
+    "degree": 2,
+    "huber_k": 1.345,
+    "irls_iterations": 12,
+    "mad_consistency_factor": 1.4826,
+    "scale_floor": 1e-06,
+    "blend_fraction": 0.5
+  },
+  "candidate_generation_uses_hidden_target": false,
+  "model_training": false,
+  "shadow_target_read": false,
+  "development_redevelopment_warning": "All development folds participated in earlier UP01/PFS selection or UP03 confirmation. UP05 is development-set redevelopment, not independent confirmation.",
+  "gate": {
+    "minimum_combined_fold01_improvement_ft": 0.20,
+    "maximum_any_fold_degradation_ft": 0.10
+  }
+}

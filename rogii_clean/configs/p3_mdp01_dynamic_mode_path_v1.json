@@ -1,0 +1,19 @@
+{
+  "experiment_id": "P3_MDP01_dynamic_mode_path_v1",
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "../input/data/raw/train",
+  "p2_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "mode_cache_dir": "artifacts/P3_PFM02_mode_paths_v1/legal_cache",
+  "mode_config": "artifacts/P3_PFM02_mode_paths_v1/config.json",
+  "formal_screen_folds": [1, 2],
+  "window_ft": 250.0,
+  "center_step_ft": 125.0,
+  "safe_weights": [0.1, 0.25],
+  "workers": 4,
+  "model_training": false,
+  "hidden_tvt_read": false,
+  "shadow_target_access": false
+}

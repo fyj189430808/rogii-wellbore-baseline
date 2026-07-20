@@ -1,0 +1,27 @@
+{
+  "experiment_id": "P3_UP01_robust_u_projection_v1",
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "../input/data/raw/train",
+  "development_folds": [1, 2],
+  "projection_coordinate": "U=pred_tvt+Z versus MD normalized to [-1,1]",
+  "polynomial_degrees": [2, 3],
+  "blend_fractions": [0.25, 0.5, 0.75],
+  "robust_method": {
+    "name": "Huber IRLS",
+    "huber_k": 1.345,
+    "irls_iterations": 12,
+    "mad_consistency_factor": 1.4826,
+    "scale_floor": 1e-06
+  },
+  "candidate_generation_uses_hidden_target": false,
+  "model_training": false,
+  "touch_pfs_legal_cache": false,
+  "gate": {
+    "minimum_arithmetic_mean_fold_improvement_ft": 0.15,
+    "maximum_any_fold_degradation_ft": 0.15,
+    "continuation_folds_if_passed": [0, 3, 4]
+  },
+  "selection_contract": "All six degree/blend candidates are preregistered and must all be reported. Hidden truth may be read only after the complete legal candidate parquet and manifest are written."
+}

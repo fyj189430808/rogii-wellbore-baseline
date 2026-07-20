@@ -1,0 +1,27 @@
+{
+  "experiment_id": "P3_UP04_global_local_equal_blend_v1",
+  "comparison_baseline": "P3_UP01_robust_u_projection_v1/degree2_blend50",
+  "global_source": "artifacts/P3_UP01_robust_u_projection_v1/legal_candidates.parquet",
+  "global_source_column": "degree2_blend50_pred_tvt",
+  "global_selection_provenance": "artifacts/P3_UP01_quadratic50_direct_path_lgbm_v1/selection_provenance.json",
+  "global_selection_folds": [1, 2],
+  "local_source": "artifacts/P3_UP02_local_u_smoothing_v1/legal_candidates.parquet",
+  "local_source_column": "smooth1000_blend75_pred_tvt",
+  "local_selection_folds": [0, 1],
+  "blend": {
+    "global_weight": 0.5,
+    "local_weight": 0.5
+  },
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "development_folds": [0, 1, 2, 3, 4],
+  "confirmation_folds": [3, 4],
+  "remaining_folds_after_gate": [0, 1, 2],
+  "candidate_generation_uses_hidden_target": false,
+  "model_training": false,
+  "shadow_target_read": false,
+  "gate": {
+    "minimum_arithmetic_mean_fold_improvement_ft": 0.15,
+    "maximum_any_fold_degradation_ft": 0.15
+  }
+}

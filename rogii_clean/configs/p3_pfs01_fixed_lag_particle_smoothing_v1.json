@@ -1,0 +1,20 @@
+{
+  "experiment_id": "P3_PFS01_fixed_lag_particle_smoothing_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "../input/data/raw/train",
+  "artifact_dir": "artifacts/P3_PFS01_fixed_lag_particle_smoothing_v1",
+  "source_pf_config": "configs/p2_p01_multiseed_pf_mean_v1.json",
+  "lag_distances_ft": [250.0, 500.0, 1000.0],
+  "likelihood_scale": 8.0,
+  "formal_number_of_particles": 500,
+  "formal_number_of_seeds": 128,
+  "seed_base": 0,
+  "formal_development_wells": 657,
+  "formal_development_rows": 3211872,
+  "formal_shadow_wells": 116,
+  "model_training": false,
+  "hidden_tvt_read": false,
+  "workers": 1
+}

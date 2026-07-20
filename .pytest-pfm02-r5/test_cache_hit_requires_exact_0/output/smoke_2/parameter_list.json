@@ -1,0 +1,9 @@
+{
+  "descriptor": [
+    "mean_delta",
+    "end_delta"
+  ],
+  "likelihood_scale": 8.0,
+  "standardize": false,
+  "ward_k": 3
+}

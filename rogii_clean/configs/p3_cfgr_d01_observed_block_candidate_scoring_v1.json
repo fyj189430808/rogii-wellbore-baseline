@@ -1,0 +1,16 @@
+{
+  "experiment_id": "P3-CFGR-D01_observed_block_candidate_scoring",
+  "artifact_dir": "artifacts/P3_CFGR_D01_observed_block_candidate_scoring",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "../input/data/raw/train",
+  "p2_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "mode_cache_dir": "artifacts/P3_PFM02_mode_paths_v1/legal_cache",
+  "seed_cache_dir": "artifacts/P3_shared_pf_seed_paths_v1",
+  "block_size_ft": 250.0,
+  "minimum_observed_gr_points": 20,
+  "out_of_range_penalty": 1.0,
+  "shift_fractions": [0.2, 0.35, 0.5, 0.65, 0.8],
+  "shadow_target_access": false,
+  "model_training": false
+}

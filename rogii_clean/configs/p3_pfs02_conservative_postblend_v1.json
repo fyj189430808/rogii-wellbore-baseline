@@ -1,0 +1,34 @@
+{
+  "experiment_id": "P3_PFS02_conservative_postblend_v1",
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "fold_version": "balanced_well_5fold_v1",
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "source_predictions_sha256": "8109514eb125f8beda2559f39e1d9f54396d41fd38fa76114423c8dd6bca4d37",
+  "pfs_legal_cache_dir": "artifacts/P3_PFS01_fixed_lag_particle_smoothing_v1/legal_cache",
+  "pfs_runtime_dir": "artifacts/P3_PFS01_fixed_lag_particle_smoothing_v1/legal_runtime",
+  "pfs_fingerprint": "4bf62f495ef530bb3ca53d65d15475f7bc3784fe5abaebbbb1053584704c4480",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "screening_folds": [0, 1],
+  "confirmation_folds": [2, 3, 4],
+  "lag_distances_ft": [250, 500, 1000],
+  "blend_fractions": [0.1, 0.25, 0.5],
+  "model_training": false,
+  "shadow_target_access": false,
+  "candidate_generation_hidden_target_read": false,
+  "screening_gate": {
+    "minimum_pooled_improvement_ft": 0.2,
+    "maximum_any_fold_degradation_ft": 0.1
+  },
+  "full_development_gate": {
+    "minimum_pooled_improvement_ft": 0.1,
+    "minimum_improved_folds": 4,
+    "minimum_improved_folds_2_to_4": 2,
+    "maximum_single_fold_degradation_ft": 0.25,
+    "maximum_bootstrap_ci_upper_ft": 0.0,
+    "minimum_well_win_rate": 0.55,
+    "maximum_p90_degradation_ft": 0.2,
+    "maximum_top5_percent_positive_gain_share": 0.6
+  },
+  "selection_contract": "Generate all nine legal paths before target access; lock exactly one candidate by maximum pooled RMSE improvement on folds 0-1; inspect folds 2-4 only if the locked candidate passes the screening gate."
+}

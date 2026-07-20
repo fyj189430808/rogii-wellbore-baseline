@@ -1,0 +1,29 @@
+{
+  "experiment_id": "P3_UP03_up01_plus_pfs_correction_v1",
+  "baseline_path": "UP01 degree2_blend50",
+  "source_up01_legal_candidates": "artifacts/P3_UP01_robust_u_projection_v1/legal_candidates.parquet",
+  "source_up01_sha256": "3e6a09782e59d8cb014e32bc9cc9aa8f5405850a5cf09ff12ca21696b8b01ee5",
+  "source_up01_manifest": "artifacts/P3_UP01_robust_u_projection_v1/legal_generation_manifest.json",
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "source_predictions_sha256": "8109514eb125f8beda2559f39e1d9f54396d41fd38fa76114423c8dd6bca4d37",
+  "pfs_legal_cache_dir": "artifacts/P3_PFS01_fixed_lag_particle_smoothing_v1/legal_cache",
+  "pfs_runtime_dir": "artifacts/P3_PFS01_fixed_lag_particle_smoothing_v1/legal_runtime",
+  "pfs_fingerprint": "4bf62f495ef530bb3ca53d65d15475f7bc3784fe5abaebbbb1053584704c4480",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "up01_selection_folds": [1, 2],
+  "pfs02_selection_folds": [0, 1],
+  "independent_confirmation_folds": [3, 4],
+  "summary_folds_after_pass": [0, 1, 2],
+  "up01_column": "degree2_blend50_pred_tvt",
+  "pfs_lag_distance_ft": 1000,
+  "pfs_correction_fraction": 0.25,
+  "model_training": false,
+  "shadow_target_access": false,
+  "candidate_generation_hidden_target_read": false,
+  "confirmation_gate": {
+    "minimum_arithmetic_mean_fold_improvement_ft": 0.15,
+    "maximum_any_fold_degradation_ft": 0.15
+  },
+  "selection_lineage": "UP01 degree2_blend50 was selected on folds 1-2; the fixed PFS lag1000 alpha0.25 correction was selected on folds 0-1; only folds 3-4 are unused by either selection."
+}

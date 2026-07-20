@@ -1,0 +1,13 @@
+{
+  "cache_hit": false,
+  "elapsed_seconds": 0.06591439999465365,
+  "experiment_fingerprint": "0e370cdb19260c67ea4a2072d4fa1e63ca1f9d40ad387135d78fe512b69c974e",
+  "fold": 1,
+  "generator_sha256": "2df4ad5f3b16f3f3adadb8e89bf6c5f698a9dca6df59092d2598103e55df8235",
+  "hidden_tvt_read": false,
+  "pfm01_core_sha256": "2794c417dc33c8887135224d119553f168c446230844e1ad8db74831c7e510a0",
+  "rows": 5,
+  "shared_fingerprint": "91053aa823f16f7f58478e5f890c11a4450250c94d1804a85c659dc4556468f0",
+  "shared_npz_sha256": "c02dc5d0dd93c3b814c6cafe8ae6a85fa67d691c7ebe8cf3162806447030400f",
+  "well_id": "well-b"
+}

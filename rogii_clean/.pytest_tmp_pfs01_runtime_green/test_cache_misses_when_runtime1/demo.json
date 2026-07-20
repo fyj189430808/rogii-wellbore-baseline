@@ -1,0 +1,32 @@
+{
+  "experiment_id": "P3_PFS01_fixed_lag_particle_smoothing_v1",
+  "well_id": "demo",
+  "fold": 2,
+  "hidden_rows": 2,
+  "legal_horizontal_columns": [
+    "MD",
+    "Z",
+    "GR",
+    "TVT_input"
+  ],
+  "typewell_columns": [
+    "TVT",
+    "GR"
+  ],
+  "experiment_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "cache_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "hidden_tvt_read": false,
+  "generation_seconds": 1.25,
+  "resume_check_seconds": 0.01,
+  "resample_count": 3,
+  "history_rows_reordered_total": 4,
+  "history_particle_copies": 2000,
+  "max_active_rows": 2,
+  "history_bytes_peak": 16000,
+  "lag250_smooth_rows": 0,
+  "lag250_fallback_rows": 256,
+  "lag500_smooth_rows": 0,
+  "lag500_fallback_rows": 256,
+  "lag1000_smooth_rows": 0,
+  "lag1000_fallback_rows": 256
+}

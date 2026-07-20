@@ -1,0 +1,4 @@
+well_id,fold,total_rows,visible_rows,hidden_rows
+well-a,0,9,4,5
+well-b,1,9,4,5
+shadow-well,2,9,4,5

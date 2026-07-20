@@ -1,5 +1,7 @@
 # 从 CSV 到最终 TVT 的完整数据流
 
+核对日期：2026-07-20。本文先解释历史 Notebook 的多轨流程，再给出当前可复算的 P2-P01 → P2-P02 严格数据流。
+
 ## 0. 这条流水线解决什么问题
 
 输入是一口井的可见前缀和隐藏后缀：
@@ -22,6 +24,18 @@
 9. 可见前缀候选选择；
 10. 模型包微调；
 11. 提交审计和评分。
+
+### 0.1 先分清三条数据流
+
+项目中经常把三条不同的数据流都简称为“PF”，这是目前最容易造成误解的地方：
+
+| 数据流 | PF 后面还做了什么 | 是否训练跨井模型 | 当前可核验成绩 |
+|---|---|---:|---:|
+| Notebook selector PF | 按井选 scale，可混 Beam，再做整段 carry hold | 否 | 没有保存可信的 128-seed 完整五折产物 |
+| P2-P01 裸 PF | 只输出 mean 和 scale 3/5/8/12 路径 | 否 | 最好 scale 8：10.9543 |
+| P2-P02 / P3B00 | 五条 PF 路径与 36 条其他特征进入单个 LightGBM | 是 | 10.3057049921 |
+
+历史口头所称的 `PF 10.7` 没有在本地找到一套能同时对应“代码、配置、预测、指标”的完整产物。所以下文先忠实解释 Notebook，再单独说明当前已经可以复算的 P2 流程；不能把两者的参数、后处理或分数互相挪用。
 
 ## 1. 原始数据进入内存
 
@@ -684,7 +698,152 @@ manifest 记录 5 折、3,783,989 OOF 行和 10.6702 后处理 OOF RMSE。
 - 对当前 3 井提交非常有效；
 - 对“新井泛化”和严格 PF 基线而言，应标记为同井标签复用，不能混入合法 PF CV。
 
-## 17. 数据直接证明、推断和未知
+## 17. 当前可复现的 P2-P01 → P2-P02 数据流
+
+前面第 4～16 节解释的是历史 Notebook。当前真正有完整缓存、固定 fold 和 OOF 预测的数据流如下。
+
+### 17.1 第一步：逐井生成合法 PF 路径
+
+入口：
+
+```text
+rogii_clean/scripts/run_p2_p01_multiseed_pf_mean.py
+```
+
+完整调用链：
+
+```text
+读取 horizontal 的 MD/Z/GR/TVT_input
++ 读取 typewell 的 TVT/GR
+→ prepare_particle_filter_inputs()
+→ particle_filter_all_seeds_numba()
+→ 得到 128 条 seed 路径及 128 个整井 log-likelihood
+→ build_multiseed_pf_features()
+→ 生成 mean、scale 3、5、8、12 五条路径
+→ 只保存自然隐藏段
+→ 逐井合法缓存 + runtime 记录
+```
+
+数组 shape：
+
+```text
+隐藏段 MD/Z/GR                 [H]
+Typewell TVT/GR                [T]
+粒子 U、rate、weight           [500]
+128 条 seed 路径               [128, H]
+128 个整井 log-likelihood      [128]
+每条汇总路径                   [H]
+```
+
+重要代码位置：
+
+| 文件位置 | 作用 |
+|---|---|
+| `rogii_clean/scripts/run_p2_p01_multiseed_pf_mean.py:450` | 只读取测试时合法的原始列 |
+| `rogii_clean/src/p2_p01_multiseed_pf.py:57` | 128-seed 粒子内核 |
+| `rogii_clean/src/p2_p01_multiseed_pf.py:466` | 一口井的输入准备 |
+| `rogii_clean/src/p2_p01_multiseed_pf.py:682` | mean 和四个 scale 的路径汇总 |
+| `rogii_clean/scripts/run_p2_p01_multiseed_pf_mean.py:959` | 主入口、逐井循环和断点缓存 |
+
+P2-P01 产物中，五条路径会转为相对最后可见 TVT 的增量：
+
+```text
+pf128_mean_delta
+pf128_scale_3_delta
+pf128_scale_5_delta
+pf128_scale_8_delta
+pf128_scale_12_delta
+```
+
+公式：
+
+\[
+PF\_delta_i=PF\_TVT_i-TVT_{last\ visible}
+\]
+
+这里没有固定 carry-hold，也没有额外 Savitzky–Golay 平滑。
+
+### 17.2 第二步：把五条路径交给单个 LightGBM
+
+入口：
+
+```text
+rogii_clean/scripts/run_p2_p02_multiscale_pf_paths_cv.py
+```
+
+数据流：
+
+```text
+B00 基础特征缓存
++ F05a 确定性路径缓存
++ P2-P01 五条 PF 相对路径
+→ 按 well_id + row_index 一一合并
+→ 固定 41 列
+→ balanced_well_5fold_v1
+→ 每折只用另外四折训练一个 LightGBM
+→ 预测 target_delta
+→ 加回 last_visible_tvt
+→ 合并五折 OOF
+→ micro RMSE
+```
+
+训练目标：
+
+\[
+target\_delta_i=TVT_{true,i}-TVT_{last\ visible}
+\]
+
+模型输出恢复为绝对 TVT：
+
+\[
+TVT_{pred,i}=TVT_{last\ visible}+\widehat{target\_delta_i}
+\]
+
+关键代码位置：
+
+| 文件位置 | 作用 |
+|---|---|
+| `rogii_clean/scripts/run_p2_p02_multiscale_pf_paths_cv.py:328` | 合并 PF 缓存 |
+| `rogii_clean/scripts/run_p2_p02_multiscale_pf_paths_cv.py:913` | 五折主入口 |
+| `rogii_clean/scripts/run_simple_lgbm_cv.py:362` | 单折 LightGBM 训练 |
+| `rogii_clean/scripts/run_simple_lgbm_cv.py:125` | 加回最后可见 TVT |
+| `rogii_clean/src/metrics.py:10` | RMSE 实现 |
+
+固定五折结果：
+
+| fold | 井数 | 隐藏行数 | RMSE |
+|---:|---:|---:|---:|
+| 0 | 155 | 757,738 | 10.170797 |
+| 1 | 155 | 756,650 | 9.462464 |
+| 2 | 154 | 756,255 | 9.181974 |
+| 3 | 155 | 757,101 | 10.875473 |
+| 4 | 154 | 756,245 | 11.639197 |
+| 合计 | 773 | 3,783,989 | **10.3057049921** |
+
+### 17.3 裸 PF 路径本身的回放成绩
+
+| 路径 | 773 井 pooled RMSE |
+|---|---:|
+| carry-forward | 15.909853 |
+| 单 seed | 12.573200 |
+| 128-seed 普通均值 | 11.623349 |
+| scale 3 | 11.117239 |
+| scale 5 | 10.991466 |
+| scale 8 | **10.954318** |
+| scale 12 | 10.962091 |
+
+所以 `10.3057` 的提升不等于 PF 单独变成了 10.3057，而是 LightGBM 学会了如何结合五条 PF 路径与其他 36 条特征。
+
+### 17.4 Notebook selector 与当前 P2 复刻并非逐位相同
+
+至少有两个实现差异：
+
+1. Notebook 单元格 11 的第一隐藏步使用“最后可见 MD 到第一隐藏 MD”的实际间隔；P2 复刻 Notebook 单元格 37，第一步固定按 1 ft 处理。
+2. Notebook 单元格 11 使用 `default_rng`；P2/单元格 37 使用 `np.random.seed` 的旧随机序列。
+
+因此，Notebook selector 缓存与 P2-P01 缓存不能互相冒充，也不能期待随机种子编号逐位对应。
+
+## 18. 数据直接证明、推断和未知
 
 ### 数据直接证明的事实
 
@@ -705,20 +864,19 @@ manifest 记录 5 折、3,783,989 OOF 行和 10.6702 后处理 OOF RMSE。
 
 - `ROGII - 03/9.349.csv` 是否由当前 profile 生成。
 - 当前 Notebook 对真正未知、没有训练副本的新测试井会得到什么排行榜分数。
-- 所谓“PF 10.7”究竟指 selector PF、第一条残差轨道还是模型包 10.6702。
+- 历史“PF 10.7”口头成绩究竟对应哪套 selector 参数、后处理和预测文件。
 
 ### 当前代码只能否定或证明的具体实现
 
 当前只读考古不能否定 PF、GR 或邻井方向。它只能证明最终提交不是一个纯 PF 实验。
 
-### 下一步最便宜的验证
+### 下一步最便宜的学习验证
 
-不运行大实验，先：
+不启动新实验，先选一口井，从已有 P2-P01 缓存完成一次人工追踪：
 
-1. 固定一口训练井；
-2. 只运行 `run_particle_filter()`；
-3. 保存 carry-forward、单 seed PF、24/128 seed PF；
-4. 在同一隐藏 mask 上复算 RMSE；
-5. 明确禁止 `tvt_from_contacts()` 和同井地层列。
-
-这一步需要先写实验卡，再运行。
+1. 找到该井的最后可见 `TVT_input`、`Z` 和初始 `U`；
+2. 核对 500 个粒子的初始位置和倾角数组；
+3. 手算第一隐藏行的状态更新、GR 似然和有效粒子数；
+4. 找到该井 128-seed、scale 8 和最终 P2-P02 特征行；
+5. 用 `pred_tvt = last_visible_tvt + pred_delta` 复算一行预测；
+6. 确认整个过程没有读取该井隐藏 `TVT`，直到最后评分。

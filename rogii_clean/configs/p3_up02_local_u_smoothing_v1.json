@@ -1,0 +1,25 @@
+{
+  "experiment_id": "P3_UP02_local_u_smoothing_v1",
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "../input/data/raw/train",
+  "development_folds": [0, 1, 2, 3, 4],
+  "screening_folds": [0, 1],
+  "confirmation_folds": [2, 3, 4],
+  "coordinate": "U=TVT+Z",
+  "smoothing_method": "linear interpolation to uniform MD grid followed by scipy.ndimage.gaussian_filter1d with reflect boundary",
+  "grid_step_ft": 1.0,
+  "smoothing_windows_ft": [250.0, 500.0, 1000.0],
+  "sigma_fraction_of_window": 0.25,
+  "gaussian_truncate_sigma": 4.0,
+  "blend_fractions": [0.25, 0.5, 0.75],
+  "candidate_generation_uses_hidden_target": false,
+  "model_training": false,
+  "shadow_target_read": false,
+  "gate": {
+    "minimum_combined_fold01_improvement_ft": 0.20,
+    "maximum_any_fold_degradation_ft": 0.10,
+    "selection_rule": "among passing candidates, choose the lowest combined folds 0-1 pooled RMSE; ties use preregistered candidate order"
+  }
+}

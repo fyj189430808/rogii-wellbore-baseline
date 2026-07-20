@@ -1,0 +1,34 @@
+{
+  "experiment_id": "P3_PFS03_max_available_lag_postcorrection_v1",
+  "comparison_baseline": "P3_UP03_up01_plus_pfs_correction_v1",
+  "source_up03_legal_candidates": [
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_candidates_folds012.parquet",
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_candidates_folds34.parquet"
+  ],
+  "source_up03_legal_manifests": [
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_manifest_folds012.json",
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_manifest_folds34.json"
+  ],
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "source_p01_legal_cache_dir": "artifacts/P2_P01_multiseed_pf_mean_v1/legal_cache",
+  "source_pfs_legal_cache_dir": "artifacts/P3_PFS01_fixed_lag_particle_smoothing_v1/legal_cache",
+  "source_pfs_runtime_dir": "artifacts/P3_PFS01_fixed_lag_particle_smoothing_v1/legal_runtime",
+  "pfs_fingerprint": "4bf62f495ef530bb3ca53d65d15475f7bc3784fe5abaebbbb1053584704c4480",
+  "fold_registry": "artifacts/folds/balanced_well_5fold_v1.csv",
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "lag_distances_ft": [250, 500, 1000],
+  "selection_rule": "Choose lag1000 when MD_end-MD>=1000; else lag500 when >=500; else lag250 when >=250; else original pf128_scale8.",
+  "candidate_formula": "UP01_degree2_blend50 + 0.25 * (dynamic_pfs_abs - P3B00_pred)",
+  "correction_fraction": 0.25,
+  "screen_folds": [0, 1],
+  "remaining_folds_after_pass": [2, 3, 4],
+  "screen_gate": {
+    "minimum_pooled_improvement_ft": 0.20,
+    "maximum_any_fold_degradation_ft": 0.10
+  },
+  "model_training": false,
+  "shadow_target_access": false,
+  "candidate_generation_hidden_target_access": false,
+  "development_redevelopment": true,
+  "development_redevelopment_warning": "All 657 development wells have participated in earlier route decisions. This is redevelopment evidence, not independent confirmation. Shadow remains closed."
+}

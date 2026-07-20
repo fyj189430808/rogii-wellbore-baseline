@@ -1,0 +1,39 @@
+{
+  "experiment_id": "P3_UP06_projection_strength_oracle_audit_v1",
+  "diagnostic_only": true,
+  "model_training": false,
+  "baseline_id": "P3B00_group5_p2p02_v1",
+  "source_predictions": "artifacts/P2_P02_multiscale_pf_paths_v1/predictions.parquet",
+  "source_up01_legal_candidates": "artifacts/P3_UP01_robust_u_projection_v1/legal_candidates.parquet",
+  "source_up01_manifest": "artifacts/P3_UP01_robust_u_projection_v1/legal_generation_manifest.json",
+  "source_up03_legal_candidates": [
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_candidates_folds012.parquet",
+    "artifacts/P3_UP03_up01_plus_pfs_correction_v1/legal_candidates_folds34.parquet"
+  ],
+  "shadow_registry": "artifacts/P3_shadow_holdout_v1/shadow_holdout.csv",
+  "raw_train_dir": "../input/data/raw/train",
+  "development_wells": 657,
+  "development_folds": [0, 1, 2, 3, 4],
+  "alpha_grid": {
+    "start": 0.0,
+    "stop": 1.25,
+    "step": 0.05
+  },
+  "projection": {
+    "coordinate": "U=pred_tvt+Z versus MD normalized to [-1,1]",
+    "degree": 2,
+    "method": "UP01 fixed Huber IRLS",
+    "huber_k": 1.345,
+    "irls_iterations": 12,
+    "scale_floor": 1e-06
+  },
+  "potential_threshold_ft": 0.30,
+  "identifiability_rule": {
+    "minimum_absolute_pooled_spearman": 0.15,
+    "minimum_folds_same_direction": 4
+  },
+  "hidden_target_read_stage": "only after legal_candidates.parquet, legal_well_features.csv and legal_manifest.json are atomically written",
+  "shadow_target_access": false,
+  "registry_update": false,
+  "current_state_update": false
+}

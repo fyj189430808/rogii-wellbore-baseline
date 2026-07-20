@@ -1,5 +1,7 @@
 # ROGII 项目文件地图
 
+核对日期：2026-07-20。本文同时记录历史高分 Notebook 和当前可复现 P2 主线；两者会明确分栏，不互相冒充。
+
 ## 0. 文档目的和当前结论
 
 这份文档回答六个问题：
@@ -20,12 +22,18 @@
 - 项目没有传统的 `main.py`。
 - 总入口是 `rogii-dual-track-prefix-calibrated-geosteering.ipynb`。
 - Notebook 有 57 个单元格，包含多个重复或相近的 PF 实现。
-- `input/` 主要存放原始数据、预训练模型、OOF 预测和历史提交，不是 2,000 多个独立源码文件。
-- 历史高分运行不是纯 PF，而是“树模型残差 + PF/Beam/同井物理候选 + 投影 + 第二条学习轨道 + 同井接触面覆盖 + 小权重模型包校正”。
-- 2026-07-16 起，当前源码默认进入 private-safe 模式：直接同井 physical/contact、overlap probe 和同 ID 空间检索均关闭或自排除；Notebook 内保存的旧输出仍是修改前日志，必须重新运行后才能代表当前源码。
-- 工作区内没有一个文件明确命名为“PF 10.7”。`ROGII Model Package/stacking/blend_config.json` 记录的后处理 OOF RMSE 是 10.6702，但那是多模型包的 OOF，不应直接称为纯 PF 10.7。
+- 历史高分运行不是纯 PF，而是“树模型残差 + PF/Beam + 投影 + 第二条学习轨道 + 可选同井覆盖 + 小权重模型包校正”。
+- 当前电脑上的依赖已经被整理成 `input/data/raw/` 和扁平的 `input/others/`，不再保留 Notebook 中每个 Kaggle 数据集原来的目录名。
+- 当前真正可逐行核对的 PF 核心在 `rogii_clean/src/p2_p01_multiseed_pf.py`；它复刻的是 Notebook 单元格 37 的 128-seed likelihood PF。
+- 当前可核验的纯 PF 最好路径是 scale 8，完整 773 井回放 RMSE 为 `10.9543`；不是口头沿用的 `10.7`。
+- 当前固定的 `10.3057049921` 是“五条 PF 路径 + 36 条其他合法特征 + 单个 LightGBM”的结果，不能称作纯 PF。
+- 历史 `10.7321` 在本地没有对应的完整预测、指标和配置产物，因此现在不能声称已经精确复现它。
 
-因此，本文把“当前高分 Notebook 主流程”和“可独立复现的合法 PF 基线”分开标记。
+因此，本文严格区分三件事：
+
+1. 历史高分 Notebook 里的 selector PF；
+2. 当前已经复刻并保存缓存的裸 PF 路径；
+3. PF 路径进入 41 列单模 LightGBM 后的 `10.3057` 基线。
 
 ## 1. 顶层目录
 
@@ -38,7 +46,7 @@
     │   ├── 02_pf_data_flow.md
     │   ├── 03_pf_algorithm.md
     │   └── 07_validation_and_metrics.md
-    ├── rogii_clean/
+    ├── rogii_clean/                              # 当前可复现代码与历史实验档案
     │   ├── configs/
     │   ├── scripts/
     │   ├── src/
@@ -46,14 +54,8 @@
     │   ├── experiments/
     │   └── tests/
     └── input/
-        ├── data/
-        ├── koolbox offline/
-        ├── ROGII - 03/
-        ├── ROGII Model Package/
-        ├── ROGII v10 Fresh Artifacts/
-        ├── rogii-claude-models-pub/
-        ├── rogii-tabicl-mirror/
-        └── Wellbore Geology Prediction  Artifacts/
+        ├── data/raw/                             # 当前原始比赛数据
+        └── others/                               # 扁平保存的旧模型、训练特征、wheel 和历史提交
 
 ## 2. 顶层文件
 
@@ -65,21 +67,26 @@
 | `docs/01_pf_entrypoint.md` | 解释从哪个单元格开始、每一步如何覆盖输出 | 学习主线 | 人阅读 | Notebook | 单元格、函数 | 入口导读 | 否 |
 | `docs/02_pf_data_flow.md` | 从 CSV 到最终 TVT 的完整数据流 | 学习主线 | 人阅读 | Notebook、数据 schema | 数据与代码位置 | 数据流导读 | 否 |
 | `docs/03_pf_algorithm.md` | PF 的直观含义、公式、数值例子和代码对应 | 学习主线 | 人阅读 | PF 函数 | 参数和公式 | 算法导读 | 否 |
-| `docs/07_validation_and_metrics.md` | 旧 CV 审计、新冻结 spatial-pad 五折和统一指标 | 验证主线 | 人阅读 | fold 注册表和评分代码 | CV 证据 | 固定验证制度 | 否 |
+| `docs/07_validation_and_metrics.md` | 旧 CV 审计、当前按井五折和统一指标 | 验证主线 | 人阅读 | fold 注册表和评分代码 | CV 证据 | 固定验证制度 | 否 |
 
-## 2.1 新干净项目：`rogii_clean/`
+## 2.1 当前可复现项目和实验档案：`rogii_clean/`
+
+这个目录名字里虽然有 `clean`，但经过一、二、三阶段实验后，它现在已经同时包含“可复现主线”和“大量实验档案”。学习 PF 时先只跟踪下表中的主线文件，其余 `P3_*`、`RF*`、`F*` 实验暂时不要展开。
 
 | 路径 | 用途 | 当前状态 |
 |---|---|---|
-| `configs/cv_spatial_pad_v1.json` | 冻结 median-XY 1000-unit connected-pad 五折定义 | 已冻结 |
-| `configs/lgbm_feature_baseline_v1.json` | 冻结单模 LightGBM、target、参数和禁用输入 | 已冻结，尚未训练 |
-| `src/fold_split.py` | 读取 773 井、构造 pad、确定性平衡五折 | 已测试 |
+| `src/p2_p01_multiseed_pf.py` | 当前权威 PF 内核：500 粒子、128 个 seed、四个 scale | 已复刻并运行 773 井 |
+| `scripts/run_p2_p01_multiseed_pf_mean.py` | 读取合法列，逐井生成 PF 路径与缓存 | 已运行，支持断点续跑 |
+| `configs/p2_p01_multiseed_pf_mean_v1.json` | 冻结 PF 参数、输入边界和缓存血缘 | 已保存 |
+| `artifacts/P2_P01_multiseed_pf_mean_v1/` | 裸 PF 路径、逐井运行记录和回放指标 | 已保存 |
+| `scripts/run_p2_p02_multiscale_pf_paths_cv.py` | 把 PF 路径与基础特征合并，再运行固定单模 LightGBM | 已完成五折 |
+| `configs/p2_p02_multiscale_pf_paths_v1.json` | P2-P02 的 41 列合同和产物指纹 | 已保存 |
+| `artifacts/P2_P02_multiscale_pf_paths_v1/` | 10.3057 的配置、41 列列表、OOF、指标与逐井结果 | 已保存 |
+| `artifacts/P3B00_group5_p2p02_v1/` | 指向 P2-P02 的冻结基线指针，不是一次新训练 | 已冻结 |
+| `artifacts/folds/balanced_well_5fold_v1.csv` | 当前正式按井五折注册表 | 773 井 |
 | `src/metrics.py` | micro/macro/P90/逐折/井级 bootstrap | 已测试 |
-| `scripts/make_fixed_folds.py` | 生成 fold CSV 和 SHA-256 元数据 | 已运行 |
-| `scripts/score_predictions.py` | 统一评分一份 OOF CSV/Parquet | 等待预测文件 |
-| `artifacts/folds/spatial_pad_1000_v1.csv` | 一井一行的固定 fold 注册表 | 773 井，SHA 已锁定 |
-| `experiments/feature_roadmap.md` | B0 和 F01～F07 单因素特征实验卡 | 已完成，未运行 |
-| `tests/` | fold 与指标不变量 | 3 项测试 |
+| `scripts/run_simple_lgbm_cv.py` | 冻结 LightGBM 的实际训练和绝对 TVT 恢复 | 已运行 |
+| `P3_*`、`RF*`、`F*` 文件与目录 | 后续特征实验和诊断档案 | PF 初读时全部可忽略 |
 
 ## 3. 原始比赛数据：`input/data/raw/`
 
@@ -88,7 +95,6 @@
     input/data/raw/
     ├── AI_wellbore_geology_prediction_task_en.pptx
     ├── sample_submission.csv
-    ├── rogii_artifacts/                         # 当前为空
     ├── train/
     │   ├── <well_id>__horizontal_well.csv      # 773 个
     │   ├── <well_id>__typewell.csv             # 773 个
@@ -141,18 +147,20 @@ typewell 训练文件有 `TVT`、`GR`、`Geology`；测试文件只有 `TVT`、`
 
 这就是历史高分运行中同井接触面覆盖层能够触发的原因。当前 private-safe 源码已经关闭该通道；这段关系只作为旧结果考古证据保留。
 
-## 4. 第一条残差模型轨道：`Wellbore Geology Prediction  Artifacts/`
+## 4. 第一条残差模型轨道：Kaggle 逻辑目录与本地镜像
+
+Notebook 中把这组文件称为 `Wellbore Geology Prediction  Artifacts/`。当前电脑没有同名目录；对应文件被扁平保存到 `input/others/`。
 
 ### 4.1 文件清单
 
 | 文件 | 用途 | 当前主流程 | 被谁读取 | 输入 | 输出 | 能否暂时忽略 |
 |---|---|---:|---|---|---|---:|
-| `data/train.csv` | 预计算的 773 井隐藏段训练特征，约 7.39 GB | 是 | Notebook 单元格 15 | 特征表 | `train_df` | 理解 PF 时可暂时忽略；理解最终模型时不可 |
-| `models/lightgbm-1/lgbmregressor_trainer_20260526182612.pkl` | 第一组 LightGBM 的 GroupKFold Trainer | 是 | 单元格 18 | `X_test` | OOF 和测试增量预测 | 同上 |
-| `models/lightgbm-2/lgbmregressor_trainer_20260526190415.pkl` | 第二组 LightGBM Trainer | 是 | 单元格 18 | `X_test` | OOF 和测试增量预测 | 同上 |
-| `models/lightgbm-3/lgbmregressor_trainer_20260526192806.pkl` | 第三组 LightGBM Trainer | 是 | 单元格 18 | `X_test` | OOF 和测试增量预测 | 同上 |
-| `models/catboost-1/catboostregressor_trainer_20260526193740.pkl` | 第一组 CatBoost Trainer | 是 | 单元格 19 | `X_test` | OOF 和测试增量预测 | 同上 |
-| `models/catboost-2/catboostregressor_trainer_20260526194838.pkl` | 第二组 CatBoost Trainer | 是 | 单元格 19 | `X_test` | OOF 和测试增量预测 | 同上 |
+| `input/others/data/train.csv` | 预计算的 773 井隐藏段训练特征，约 7.39 GB | 是 | Notebook 单元格 15 | 特征表 | `train_df` | 理解 PF 时可暂时忽略；理解最终 Notebook 时不可 |
+| `input/others/models/lightgbm-1/...pkl` | 第一组 LightGBM 的 GroupKFold Trainer | 是 | 单元格 18 | `X_test` | OOF 和测试增量预测 | 同上 |
+| `input/others/models/lightgbm-2/...pkl` | 第二组 LightGBM Trainer | 是 | 单元格 18 | `X_test` | OOF 和测试增量预测 | 同上 |
+| `input/others/models/lightgbm-3/...pkl` | 第三组 LightGBM Trainer | 是 | 单元格 18 | `X_test` | OOF 和测试增量预测 | 同上 |
+| `input/others/models/catboost-1/...pkl` | 第一组 CatBoost Trainer | 是 | 单元格 19 | `X_test` | OOF 和测试增量预测 | 同上 |
+| `input/others/models/catboost-2/...pkl` | 第二组 CatBoost Trainer | 是 | 单元格 19 | `X_test` | OOF 和测试增量预测 | 同上 |
 
 ### 4.2 调用关系
 
@@ -172,20 +180,22 @@ typewell 训练文件有 `TVT`、`GR`、`Geology`；测试文件只有 `TVT`、`
 
     target = hidden_TVT - last_known_TVT
 
-## 5. 第二条 learned trajectory：`rogii-claude-models-pub/`
+## 5. 第二条 learned trajectory：Kaggle 逻辑目录与本地镜像
+
+Notebook 中的逻辑目录名是 `rogii-claude-models-pub/`；本地对应文件位于 `input/others/` 根目录。
 
 | 文件 | 用途 | 当前主流程 | 被谁读取 | 输入 | 输出 | 能否暂时忽略 |
 |---|---|---:|---|---|---|---:|
-| `features.json` | 记录 200 多个 learned trajectory 输入特征的顺序 | 是 | Notebook 单元格 43 `main()` | JSON | 特征名列表 | 理解基础 PF 时可以 |
-| `lgb0.pkl` | 预训练 LightGBM 轨迹模型 1 | 是 | `main()` | `test_df[features]` | TVT 增量 | 理解基础 PF 时可以 |
-| `lgb1.pkl` | 预训练 LightGBM 轨迹模型 2 | 是 | `main()` | 同上 | TVT 增量 | 同上 |
-| `lgb2.pkl` | 预训练 LightGBM 轨迹模型 3 | 是 | `main()` | 同上 | TVT 增量 | 同上 |
+| `input/others/features.json` | 记录 200 多个 learned trajectory 输入特征的顺序 | 是 | Notebook 单元格 43 `main()` | JSON | 特征名列表 | 理解基础 PF 时可以 |
+| `input/others/lgb0.pkl` | 预训练 LightGBM 轨迹模型 1 | 是 | `main()` | `test_df[features]` | TVT 增量 | 理解基础 PF 时可以 |
+| `input/others/lgb1.pkl` | 预训练 LightGBM 轨迹模型 2 | 是 | `main()` | 同上 | TVT 增量 | 同上 |
+| `input/others/lgb2.pkl` | 预训练 LightGBM 轨迹模型 3 | 是 | `main()` | 同上 | TVT 增量 | 同上 |
 
 Notebook 单元格 33 重新定义 `CFG` 后，单元格 36～43 动态构建 PF、Beam、NCC、空间地层和 GR 特征。单元格 43 对三个模型取简单平均，再由 `make_prediction()` 与 likelihood PF 轨迹混合。
 
 ## 6. 最终微小校正：`ROGII Model Package/`
 
-这个目录是一个可以独立推理的多模型包。当前 profile 要求它必须存在，但只允许它在最终轨迹上做最大 0.5% 的门控移动。
+这个目录是 Notebook 在 Kaggle 上依赖的独立多模型包。当前 profile 要求它必须存在，但只允许它在最终轨迹上做最大 0.5% 的门控移动。**当前本地 `input/` 中没有找到 `model_package_manifest.json`，所以原 Notebook 不能在本机完整走到这一层。** 下表记录的是 Notebook 代码和保存日志所要求的逻辑结构，不代表这些文件现在都在本机。
 
 ### 6.1 入口和特征构建
 
@@ -282,7 +292,7 @@ manifest 记录：
 | `reports/well_scores.csv` | 逐井 OOF 分数 | 否 |
 | `reports/dataset_manifest.json` | 打包时的完整文件清单 | 否 |
 
-## 7. 离线运行依赖：`koolbox offline/`
+## 7. 离线运行依赖：`input/others/*.whl`
 
 该目录包含 16 个 wheel 和 2 个未完成下载文件。当前真正的直接目的，是让 Notebook 能反序列化保存时类型为 `koolbox.Trainer` 的五个模型。
 
@@ -299,27 +309,15 @@ Notebook 单元格 8：
 | `joblib/scikit_learn/scipy/...whl` | 离线依赖 | 可以 |
 | `*.crdownload` | 未完成下载，无当前作用 | 可以 |
 
-## 8. 当前 Notebook 未使用的档案
+## 8. 当前 Notebook 未使用或无需先读的本地档案
 
-### 8.1 `ROGII v10 Fresh Artifacts/`
+### 8.1 TabICL 和安装包
 
-包含：
+`input/others/tabicl-*.whl`、`tabicl-regressor-*.ckpt` 以及大部分通用 Python wheel 不在当前 PF 主调用链中。Notebook 没有调用 TabICL，可以暂时忽略。
 
-- 15 个 LightGBM；
-- 15 个 CatBoost；
-- 30 个 TabICL context；
-- 5 个 TabICL burn-in；
-- OOF、测试预测和 inference config。
+### 8.2 历史提交 CSV
 
-Notebook 文本没有引用 `v10 Fresh` 或其路径。因此它属于旧实验档案，不属于当前执行链。
-
-### 8.2 `rogii-tabicl-mirror/`
-
-包含 TabICL wheel、checkpoint 和 metadata。当前 Notebook 没有出现 `tabicl`，可以暂时忽略。
-
-### 8.3 `ROGII - 03/`
-
-包含：
+`input/others/` 包含：
 
     9.349.csv
     9.537.csv
@@ -330,7 +328,7 @@ Notebook 文本没有引用 `v10 Fresh` 或其路径。因此它属于旧实验�
     11.284.csv
     11.338.csv
 
-每个文件都有 14,151 行和 `id/tvt` 两列。文件名很像排行榜分数，但当前没有 manifest 证明每个数字的来源，Notebook 也没有读取它们。它们只能称为“历史提交档案”，不能作为当前算法参数或 CV 证据。
+这些文件名很像排行榜分数，但当前没有 manifest 证明每个数字的来源，Notebook 也没有读取它们。它们只能称为“历史提交档案”，不能作为当前算法参数或 CV 证据。
 
 ## 9. Notebook 单元格地图
 
@@ -375,7 +373,14 @@ Notebook 文本没有引用 `v10 Fresh` 或其路径。因此它属于旧实验�
 
 ## 11. 当前建议阅读顺序
 
-第一轮只读：
+第一轮先看当前可复现 PF：
+
+1. `rogii_clean/src/p2_p01_multiseed_pf.py` 第 57 行附近的粒子内核。
+2. 同文件第 466 行附近的输入准备。
+3. 同文件第 682 行附近的 128 seed 与四个 scale 汇总。
+4. `rogii_clean/scripts/run_p2_p01_multiseed_pf_mean.py` 的逐井缓存入口。
+
+第二轮再回到历史 Notebook：
 
 1. Notebook 单元格 6：profile 和参数。
 2. 单元格 11 的 `run_particle_filter()`。
@@ -384,13 +389,13 @@ Notebook 文本没有引用 `v10 Fresh` 或其路径。因此它属于旧实验�
 5. 单元格 26：PF/physical/selector 如何进入 `sub_2`。
 6. 单元格 28、30、32：第一条轨道如何落盘。
 
-第二轮再读：
+第三轮再读 Notebook 里的模型轨道：
 
 1. 单元格 14 的 `build_well()`。
 2. 单元格 15～25 的五模型和 Ridge。
 3. 单元格 33～45 的 learned trajectory。
 
-第三轮最后读：
+第四轮最后读：
 
 1. 单元格 48 的同井接触面覆盖。
 2. 单元格 50 的可见前缀候选选择。
@@ -400,6 +405,8 @@ Notebook 文本没有引用 `v10 Fresh` 或其路径。因此它属于旧实验�
 
 - 不能说“当前高分完全来自 PF”。
 - 不能把模型包的 10.6702 OOF 叫作“纯 PF 10.7”。
-- 不能根据 `ROGII - 03/9.349.csv` 的文件名断定当前 Notebook 就是 9.349 方案。
+- 不能把 P2-P02 的 10.3057 叫作纯 PF；它是 41 列单模 LightGBM。
+- 不能把当前可核验的 scale 8 裸路径 10.9543 写成 10.7321。
+- 不能根据 `input/others/9.349.csv` 的文件名断定当前 Notebook 就是 9.349 方案。
 - 不能把同井训练副本覆盖当成对新井可泛化的合法 PF 基线。
 - 在完成严格 fold 和缓存来源核对前，不能声称已完整复现 PF 10.7。
